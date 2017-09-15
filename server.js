@@ -47,14 +47,7 @@ removeDirForce("public/uploads/");
 app.post("/multer", upload.single('file'), uploadFile);
 
 
-//Triger Build from Jenkins
-app.get("/buildJenkin", function(req, res){
-  jenkins.job.build('ITQA_FT_UFT_SAP', function(err, data) {
-    if (err) throw err;
-    console.log('queue item number', data);
-    res.json(data);
-  });
-})
+
 
 //Functions
 function uploadFile(req, res){
@@ -79,6 +72,12 @@ function uploadFile(req, res){
                   return console.log(err);
                 }
                 console.log(stdout);
+                //Triger Build from Jenkins
+                jenkins.job.build('ITQA_FT_UFT_SAP', function(err, data) {
+                  if (err) throw err;
+                  console.log('queue item number', data);
+                  res.json("Success");
+                });
               });
             }
           });
@@ -86,7 +85,8 @@ function uploadFile(req, res){
       });
     });
   })
-  res.json("Success");
+
+
 }
 
 function removeDirForce(path) {

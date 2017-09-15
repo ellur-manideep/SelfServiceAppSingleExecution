@@ -23,46 +23,36 @@
   <link href="styles.css" rel="stylesheet"  type="text/css">
 </head>
 <body>
-  <div ng-controller="SapCtrl" class="md-padding" ng-cloak >
-    <!--md-input-container style="margin-right: 10px;">
-      <label>Select a Scenario</label>
-      <md-select ng-model="scen">
-        <md-option ng-repeat="scenario in scenarios" value="{{scenario.Scenarios}}">{{scenario.Scenarios}}</md-option>
-      </md-select>
-    </md-input-container>
-    <br>
-    <input type="file" file-model="myFile[0]"/><br><br>
-    <button ng-click="uploadFile()">Upload</button>
-    <div ng-if="uploaded">
-      File Uploaded
+  <div layout="column" layout-align="top center">
+    <img src="https://company-profile-images.s3.amazonaws.com/images/434718/995531/logo/juniper-networks-logo.jpg" />
+    <h1><u>Self Service Application</u></h1>
+    <div ng-controller="SapCtrl" class="md-padding" ng-cloak >
+      <button ng-click="addData()">Add Row</button>
+      <table>
+        <tr>
+          <th>SlNo</th>
+          <th>Scenarios</th>
+          <th>Test Data</th>
+          <!--th>Upload</th-->
+          <th>Run</th>
+        </tr>
+        <tr ng-repeat="data in testData">
+          <td>{{data.sno}}</td>
+          <td>
+            <md-input-container style="margin-right: 10px;">
+              <label>Select a Scenario</label>
+              <md-select ng-model="scen">
+                <md-option ng-repeat="scenario in scenarios" value="{{scenario.Scenarios}}">{{scenario.Scenarios}}</md-option>
+              </md-select>
+            </md-input-container>
+          </td>
+          <td><input type="file" file-model="myFile[data.sno]"/></td>
+          <!--td><button ng-click="uploadFile(data.sno)">Upload</button></td-->
+          <td><button ng-click="jenkinBuild(data.sno)">Run</button></td>
+        </tr>
+      </table>
+
     </div>
-    <button ng-click="jenkinBuild()">Run</button-->
-
-    <button ng-click="addData()">Add Row</button>
-    <table>
-      <tr>
-        <th>SlNo</th>
-        <th>Scenarios</th>
-        <th>Test Data</th>
-        <th>Upload</th>
-        <th>Run</th>
-      </tr>
-      <tr ng-repeat="data in testData">
-        <td>{{data.sno}}</td>
-        <td>
-          <md-input-container style="margin-right: 10px;">
-            <label>Select a Scenario</label>
-            <md-select ng-model="scen">
-              <md-option ng-repeat="scenario in scenarios" value="{{scenario.Scenarios}}">{{scenario.Scenarios}}</md-option>
-            </md-select>
-          </md-input-container>
-        </td>
-        <td><input type="file" file-model="myFile[data.sno]"/></td>
-        <td><button ng-click="uploadFile(data.sno)">Upload</button></td>
-        <td><button ng-disabled="uploaded" ng-click="jenkinBuild()">Run</button></td>
-      </tr>
-    </table>
-
   </div>
 </body>
 </html>
