@@ -17,7 +17,7 @@ sapApp.directive('fileModel', ['$parse', function ($parse) {
 }]);
 
 sapApp.controller('SapCtrl', ['$scope', '$timeout', '$mdSidenav', '$log', '$http', '$window', '$location', function($scope, $timeout, $mdSidenav, $log, $http, $window, $location){
-  $scope.uploaded=[false];
+  $scope.uploaded=true;
 
   $http({
     method: 'GET',
@@ -29,66 +29,49 @@ sapApp.controller('SapCtrl', ['$scope', '$timeout', '$mdSidenav', '$log', '$http
   });
 
   $scope.myFile = [];
-  /*$scope.uploadFile = function(i){
-  console.log($scope.myFile[i]);
-  var file = $scope.myFile[i];
-  var uploadUrl = "/multer";
-  var fd = new FormData();
-  fd.append('file', file);
+  $scope.uploadFile = function(i){
+    console.log($scope.myFile[i]);
+    var file = $scope.myFile[i];
+    var uploadUrl = "/multer";
+    var fd = new FormData();
+    fd.append('file', file);
 
-  $http({
-  method: 'POST',
-  url: uploadUrl,
-  data: fd,
-  transformRequest: angular.identity,
-  headers: {'Content-Type': undefined}
-})
-.then(function(response){
-console.log(response.data);
-$scope.uploaded=false;
-//$scope.i = $scope.i + 1;
-});
-};*/
-
-$scope.jenkinBuild = function(i){
-  console.log($scope.myFile[i]);
-  var file = $scope.myFile[i];
-  var uploadUrl = "/multer";
-  var fd = new FormData();
-  fd.append('file', file);
-
-  $http({
-    method: 'POST',
-    url: uploadUrl,
-    data: fd,
-    transformRequest: angular.identity,
-    headers: {'Content-Type': undefined}
-  })
-  .then(function(response){
-    $scope.uploaded[i]=true;
-    console.log(response.data);
-    alert("Your task is running. The test reports will be mailed to your juniper id.")
-  });
-  /*$http({
-  method: 'GET',
-  url: '/buildJenkin',
-})
-.then(function(response){
-console.log(response.data);
-console.log("Building");
-});*/
-};
-
-var sl = 1;
-$scope.testData = [
-  {sno: sl}
-]
-$scope.addData = function(){
-  var person = {
-    sno: sl+1
+    $http({
+      method: 'POST',
+      url: uploadUrl,
+      data: fd,
+      transformRequest: angular.identity,
+      headers: {'Content-Type': undefined}
+    })
+    .then(function(response){
+      console.log(response.data);
+      $scope.uploaded=false;
+      //$scope.i = $scope.i + 1;
+    });
   };
-  sl = person.sno;
-  $scope.testData.push(person);
-}
+
+
+  $scope.jenkinBuild = function(){
+    $http({
+      method: 'GET',
+      url: '/buildJenkin',
+    })
+    .then(function(response){
+      console.log(response.data);
+      console.log("Building");
+    });
+  };
+
+  var sl = 1;
+  $scope.testData = [
+    {sno: sl}
+  ]
+  $scope.addData = function(){
+    var person = {
+      sno: sl+1
+    };
+    sl = person.sno;
+    $scope.testData.push(person);
+  }
 
 }]);
