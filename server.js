@@ -43,13 +43,12 @@ app.get('/getScenarios', function(req, res){
 //Function call to remove files from a directory
 removeDirForce("public/uploads/");
 
-//Uploading test data file
+//Uploading test data file and kickstart jenkins
 app.post("/multer", upload.single('file'), uploadFile);
 
 //********************************************************************************
 
 //Functions
-
 //Function to upload and run the jenkins
 function uploadFile(req, res){
   fs.readdir('public/uploads/', (err, files) => {
@@ -86,10 +85,7 @@ function uploadFile(req, res){
       });
     });
   })
-
-
 }
-
 
 //Function to remove files in a directory
 function removeDirForce(path) {
