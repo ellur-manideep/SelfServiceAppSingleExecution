@@ -1,0 +1,20 @@
+.container {
+  display: flex;
+  justify-content: center;
+}
+.center {
+  width: 800px;
+}
+table {
+      outline: 1px solid black;
+      font-family: Arial, sans-serif;
+      font-size: 20px;
+  }
+  table td {
+      border: 1px solid black;
+      padding: 5px;
+  }
+  table th {
+      border: 1px solid black;
+      padding: 5px;
+  }
