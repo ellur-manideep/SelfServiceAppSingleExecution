@@ -72,11 +72,12 @@ function uploadFile(req, res){
                   return console.log(err);
                 }
                 console.log(stdout);
+
                 //Triger Build from Jenkins
                 jenkins.job.build('ITQA_FT_UFT_SAP', function(err, data) {
                   if (err) throw err;
                   console.log('queue item number', data);
-                  res.json("Success");
+                  res.json(data);
                 });
               });
             }

@@ -34,7 +34,7 @@
           <th>Scenarios</th>
           <th>Test Data</th>
           <!--th>Upload</th-->
-          <th>Run</th>
+          <!--th>Run</th-->
         </tr>
         <tr ng-repeat="data in testData">
           <td>{{data.sno}}</td>
@@ -48,9 +48,9 @@
           </td>
           <td><input type="file" file-model="myFile[data.sno]"/></td>
           <!--td><button ng-click="uploadFile(data.sno)">Upload</button></td-->
-          <td><button ng-click="jenkinBuild(data.sno)" ng-disabled="uploaded[data.sno]">Run</button></td>
         </tr>
       </table>
+      <button ng-click="jenkinBuild(testData)">Run</button>
 
     </div>
   </div>
