@@ -46,10 +46,11 @@ removeDirForce("public/uploads/");
 //Uploading test data file
 app.post("/multer", upload.single('file'), uploadFile);
 
-
-
+//********************************************************************************
 
 //Functions
+
+//Function to upload and run the jenkins
 function uploadFile(req, res){
   fs.readdir('public/uploads/', (err, files) => {
     files.forEach(file => {
@@ -89,6 +90,8 @@ function uploadFile(req, res){
 
 }
 
+
+//Function to remove files in a directory
 function removeDirForce(path) {
   fs.readdir(path, function(err, files) {
     if (err) {

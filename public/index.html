@@ -48,7 +48,7 @@
           </td>
           <td><input type="file" file-model="myFile[data.sno]"/></td>
           <!--td><button ng-click="uploadFile(data.sno)">Upload</button></td-->
-          <td><button ng-click="jenkinBuild(data.sno)">Run</button></td>
+          <td><button ng-click="jenkinBuild(data.sno)" ng-disabled="uploaded[data.sno]">Run</button></td>
         </tr>
       </table>
 
