@@ -17,7 +17,7 @@ sapApp.directive('fileModel', ['$parse', function ($parse) {
 }]);
 
 sapApp.controller('SapCtrl', ['$scope', '$timeout', '$mdSidenav', '$log', '$http', '$window', '$location', function($scope, $timeout, $mdSidenav, $log, $http, $window, $location){
-  $scope.uploaded=true;
+  $scope.uploaded=[false];
 
   $http({
     method: 'GET',
@@ -29,7 +29,8 @@ sapApp.controller('SapCtrl', ['$scope', '$timeout', '$mdSidenav', '$log', '$http
   });
 
   $scope.myFile = [];
-  $scope.uploadFile = function(i){
+
+  $scope.jenkinBuild = function(i){
     console.log($scope.myFile[i]);
     var file = $scope.myFile[i];
     var uploadUrl = "/multer";
@@ -45,20 +46,8 @@ sapApp.controller('SapCtrl', ['$scope', '$timeout', '$mdSidenav', '$log', '$http
     })
     .then(function(response){
       console.log(response.data);
-      $scope.uploaded=false;
+      $scope.uploaded[i]=true;
       //$scope.i = $scope.i + 1;
-    });
-  };
-
-
-  $scope.jenkinBuild = function(){
-    $http({
-      method: 'GET',
-      url: '/buildJenkin',
-    })
-    .then(function(response){
-      console.log(response.data);
-      console.log("Building");
     });
   };
 
