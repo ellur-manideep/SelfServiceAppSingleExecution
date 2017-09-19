@@ -8,7 +8,9 @@ var multer = require('multer');
 var fs = require('fs');
 var fs1 = require('fs-extra');
 var _ = require('underscore');
-var jenkins = require('jenkins')({ baseUrl: 'http://rkravi:w3lcomeg!tlab@wpsa-jenkins.sndbx.junipercloud.net:8080' });
+var sleep = require('system-sleep');
+
+var jenkins = require('jenkins')({ baseUrl: 'http://admin:juniper123@d-itqtp-app-01:8080', crumbIssuer: true });
 
 //**************************************************************************************
 // Gitlab Repo Path
@@ -51,14 +53,17 @@ app.post("/multer", upload.single('file'), uploadFile);
 //Functions
 //Function to upload and run the jenkins
 function uploadFile(req, res){
+  sleep(2*1000);
   fs.readdir('public/uploads/', (err, files) => {
     files.forEach(file => {
       console.log(file);
+      sleep(2*1000);
       //Renaming the uploaded file name to TestData_SAP_Automation.xls
       fs.rename('public/uploads/' + file, 'public/uploads/TestData_SAP_Automation.xls', function(err) {
         if ( err ) console.log('ERROR: ' + err);
         else {
           removeDirForce("IT-SAP-UFT-AUTOMATION_POC/TestData/");
+          sleep(2*1000);
           //Moving the uploaded file to the cloned repo
           fs1.move('public/uploads/TestData_SAP_Automation.xls', 'IT-SAP-UFT-AUTOMATION_POC/TestData/TestData_SAP_Automation.xls', function(err){
             if(err){
@@ -74,7 +79,8 @@ function uploadFile(req, res){
                 console.log(stdout);
 
                 //Triger Build from Jenkins
-                jenkins.job.build('ITQA_FT_UFT_SAP', function(err, data) {
+                jenkins.job.build("ITQA_FT_UFT_SAP", function(err, data) {
+                  sleep(3*1000);
                   if (err) throw err;
                   console.log('queue item number', data);
                   res.json(data);

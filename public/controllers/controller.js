@@ -49,15 +49,15 @@ sapApp.controller('SapCtrl', ['$scope', '$timeout', '$mdSidenav', '$log', '$http
       headers: {'Content-Type': undefined}
     })
     .then(function(response){
-      console.log(response.data);
+      console.log("The queue number is " + response.data);
       $scope.uploaded[i]=true;
       if(i<=$scope.testData.length){
         i = i + 1;
         $scope.jenkinBuild();
       }
-      console.log("done");
-
-      //$scope.i = $scope.i + 1;
+      else {
+          console.log("done");
+      }
     });
 
   };
