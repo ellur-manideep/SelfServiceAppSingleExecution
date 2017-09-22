@@ -20,38 +20,56 @@
   <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,400,500,700,400italic">
   <link rel="stylesheet" href="https://cdn.gitcdn.link/cdn/angular/bower-material/v1.1.3/angular-material.css">
   <link rel="stylesheet" href="https://material.angularjs.org/1.1.3/docs.css">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
   <link href="styles.css" rel="stylesheet"  type="text/css">
 </head>
 <body>
   <div layout="column" layout-align="top center">
     <img src="https://company-profile-images.s3.amazonaws.com/images/434718/995531/logo/juniper-networks-logo.jpg" />
-    <h1><u>Self Service Application</u></h1>
+    <h1 style="font-family: Arial; color: blue"><u>Self Service Application for SAP Regression Suite</u></h1>
     <div ng-controller="SapCtrl" class="md-padding" ng-cloak >
-      <button ng-click="addData()">Add Row</button>
-      <table>
-        <tr>
-          <th>SlNo</th>
-          <th>Scenarios</th>
-          <th>Test Data</th>
-          <!--th>Upload</th-->
-          <!--th>Run</th-->
-        </tr>
-        <tr ng-repeat="data in testData">
-          <td>{{data.sno}}</td>
-          <td>
-            <md-input-container style="margin-right: 10px;">
-              <label>Select a Scenario</label>
-              <md-select ng-model="scen">
-                <md-option ng-repeat="scenario in scenarios" value="{{scenario.Scenarios}}">{{scenario.Scenarios}}</md-option>
-              </md-select>
-            </md-input-container>
-          </td>
-          <td><input type="file" file-model="myFile[data.sno]"/></td>
-          <!--td><button ng-click="uploadFile(data.sno)">Upload</button></td-->
-        </tr>
-      </table>
-      <button ng-click="jenkinBuild(testData)">Run</button>
-
+      <div style="float:left">
+        <table class="comicGreen">
+          <tbody>
+          <tr>
+            <th>SlNo</th>
+            <th>Scenarios</th>
+            <th>Test Data</th>
+          </tr>
+          <tr ng-repeat="data in testData">
+            <td>{{data.sno}}</td>
+            <td>
+              <md-input-container style="margin-right: 10px;">
+                <label>Select Scenario</label>
+                <md-select ng-model="scen">
+                  <md-option ng-repeat="scenario in scenarios" value="{{scenario.Scenarios}}">{{scenario.Scenarios}}</md-option>
+                </md-select>
+              </md-input-container>
+            </td>
+            <td><input type="file" file-model="myFile[data.sno]"/></td>
+            <!--td><button ng-click="uploadFile(data.sno)">Upload</button></td-->
+          </tr>
+          </tbody>
+        </table>
+      </div>
+      <div style="float:right">
+        <br>
+        <br>
+        <md-button class="md-raised md-primary" ng-click="addData()" style="font-family: Arial">Add Row</md-button>
+      </div>
+      <div style="clear:both">
+        <br><br>
+        <section layout="row" layout-sm="column" layout-align="center center" layout-wrap>
+          <md-button ng-disabled="uploaded" class="md-raised md-primary" ng-click="jenkinBuild(testData)" style="font-family: Arial">Execute Script</md-button>
+        </section>
+        <div ng-if="uploaded" style="text-align:center">
+          Please wait! Your test data files are getting uploaded...
+        </div>
+        <div ng-if="done" style="text-align:center">
+          Thank You! Your Test Data is uploaded.<br>
+          Your Test Request is submitted and is in progress. The results will be mailed to you once the script execution is completed.
+        </div>
+      </div>
     </div>
   </div>
 </body>

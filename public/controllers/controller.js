@@ -17,7 +17,8 @@ sapApp.directive('fileModel', ['$parse', function ($parse) {
 }]);
 
 sapApp.controller('SapCtrl', ['$scope', '$timeout', '$mdSidenav', '$log', '$http', '$window', '$location', function($scope, $timeout, $mdSidenav, $log, $http, $window, $location){
-  $scope.uploaded=[false];
+  $scope.done = false;
+  $scope.uploaded = false;
   var sl = 1;
   $scope.testData = [
     {sno: sl}
@@ -34,6 +35,7 @@ sapApp.controller('SapCtrl', ['$scope', '$timeout', '$mdSidenav', '$log', '$http
   $scope.myFile = [];
   var i = 1;
   $scope.jenkinBuild = function(){
+    $scope.uploaded = true;
     console.log($scope.testData.length);
     console.log($scope.myFile[i]);
     var file = $scope.myFile[i];
@@ -49,14 +51,14 @@ sapApp.controller('SapCtrl', ['$scope', '$timeout', '$mdSidenav', '$log', '$http
       headers: {'Content-Type': undefined}
     })
     .then(function(response){
+      i = i + 1;
       console.log("The queue number is " + response.data);
-      $scope.uploaded[i]=true;
       if(i<=$scope.testData.length){
-        i = i + 1;
         $scope.jenkinBuild();
       }
       else {
           console.log("done");
+          $scope.done=true;
       }
     });
 

@@ -5,16 +5,27 @@
 .center {
   width: 800px;
 }
-table {
-      outline: 1px solid black;
-      font-family: Arial, sans-serif;
-      font-size: 20px;
-  }
-  table td {
-      border: 1px solid black;
-      padding: 5px;
-  }
-  table th {
-      border: 1px solid black;
-      padding: 5px;
-  }
+table.comicGreen {
+  font-family: "Arial", cursive, sans-serif;
+  border: 2px solid #1C6EA4;
+  background-color: #EEEEEE;
+  width: 100%;
+  text-align: center;
+  border-collapse: collapse;
+}
+table.comicGreen td, table.comicGreen th {
+  border: 2px solid #1C6EA4;
+  padding: 3px 2px;
+}
+table.comicGreen tbody td, table.comicGreen th {
+  font-size: 19px;
+  font-weight: bold;
+  color: #1C6EA4;
+}
+table.comicGreen tr:nth-child(even) {
+  background: #D0E4F5;
+}
+
+  body {
+    background-color: white;
+}
