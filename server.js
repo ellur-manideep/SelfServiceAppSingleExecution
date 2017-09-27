@@ -53,7 +53,17 @@ app.post("/multer", upload.single('file'), uploadFile);
 //Functions
 //Function to upload and run the jenkins
 function uploadFile(req, res){
-  sleep(2*1000);
+  jenkins.job.get('ITQA_FT_UFT_SAP', function(err, data) {
+  if (err) throw err;
+
+  console.log('build', data);
+});
+jenkins.build.get('ITQA_FT_UFT_SAP', 106, function(err, data) {
+if (err) throw err;
+
+console.log('build', data);
+});
+  /*sleep(2*1000);
   fs.readdir('public/uploads/', (err, files) => {
     files.forEach(file => {
       console.log(file);
@@ -91,7 +101,7 @@ function uploadFile(req, res){
         }
       });
     });
-  })
+  })*/
 }
 
 //Function to remove files in a directory
