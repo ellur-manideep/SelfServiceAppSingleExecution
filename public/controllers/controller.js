@@ -40,7 +40,19 @@ sapApp.controller('SapCtrl', ['$scope', '$timeout', '$mdSidenav', '$log', '$http
     })
     .then(function(res){
       console.log(res.data);
-      //$scope.lb=res.data;
+      if (res.data == false) {
+        i = i + 1;
+        if(i<=$scope.testData.length){
+          $scope.jenkinBuild();
+        }
+        else {
+            console.log("done");
+            $scope.done=true;
+        }
+      }
+      else {
+        $window.setTimeout(function() { $scope.jbfunc();}, 20000);
+      }
     });
   }
 
@@ -55,6 +67,7 @@ sapApp.controller('SapCtrl', ['$scope', '$timeout', '$mdSidenav', '$log', '$http
       $scope.jbfunc();
     });
   }
+
   $scope.myFile = [];
 
   $scope.jenkinBuild = function(){
@@ -76,21 +89,8 @@ sapApp.controller('SapCtrl', ['$scope', '$timeout', '$mdSidenav', '$log', '$http
     .then(function(response){
       console.log(response.data);
       $scope.jfunc();
-      /*i = i + 1;
-      console.log("The queue number is " + response.data);
-      if(i<=$scope.testData.length){
-        $scope.jenkinBuild();
-      }
-      else {
-          console.log("done");
-          $scope.done=true;
-      }*/
     });
   };
-
-
-
-
 
   $scope.addData = function(){
     var person = {
