@@ -92,7 +92,7 @@ function uploadFile(req, res){
               console.log(err);
             }
             else {
-              console.log("Moved t the cloned repo");
+              console.log("Moved the file to the cloned repo");
               //Pulling the repo from gitlab for updating the local repo
               require('child_process').exec("pull.bat", function (err, stdout, stderr) {
                 if (err) {
@@ -106,7 +106,6 @@ function uploadFile(req, res){
                     return console.log(err);
                   }
                   console.log(stdout);
-
                   //Triger Build from Jenkins
                   jenkins.job.build({name:"ITQA_FT_UFT_SAP", parameters: { name: 'Test' }}, function(err, data) {
                     sleep(3*1000);

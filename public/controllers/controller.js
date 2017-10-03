@@ -17,13 +17,14 @@ sapApp.directive('fileModel', ['$parse', function ($parse) {
 }]);
 
 sapApp.controller('SapCtrl', ['$scope', '$timeout', '$mdSidenav', '$log', '$http', '$window', '$location', function($scope, $timeout, $mdSidenav, $log, $http, $window, $location){
-  $scope.done = false;
-  $scope.uploaded = false;
-  var i = 1;
+  $scope.done = false;  //Variable to display completion of execution
+  $scope.uploaded = false;    //Variable to verify if the file has been uploaded or not
+  var i = 0;
   var sl = 1;
   $scope.testData = [
     {sno: sl}
   ];
+  //Get request for fetching scenarios
   $http({
     method: 'GET',
     url: '/getScenarios',
@@ -33,6 +34,7 @@ sapApp.controller('SapCtrl', ['$scope', '$timeout', '$mdSidenav', '$log', '$http
     $scope.scenarios=response.data;
   });
 
+  //Get request for fetching latest build response
   $scope.jbfunc = function(){
     $http({
       method: 'GET',
@@ -56,7 +58,9 @@ sapApp.controller('SapCtrl', ['$scope', '$timeout', '$mdSidenav', '$log', '$http
     });
   }
 
+  //Get request for fetching Latest build number
   $scope.jfunc = function(){
+    $scope.uploaded = true;
     $http({
       method: 'GET',
       url: '/jobInfo',
@@ -68,10 +72,10 @@ sapApp.controller('SapCtrl', ['$scope', '$timeout', '$mdSidenav', '$log', '$http
     });
   }
 
-  $scope.myFile = [];
+  $scope.myFile = [];//Storage for Test data files to be uploaded
 
+  //Function to upload and build the respective file
   $scope.jenkinBuild = function(){
-    $scope.uploaded = true;
     console.log($scope.testData.length);
     console.log($scope.myFile[i]);
     var file = $scope.myFile[i];
@@ -92,6 +96,7 @@ sapApp.controller('SapCtrl', ['$scope', '$timeout', '$mdSidenav', '$log', '$http
     });
   };
 
+  //Function to add rows
   $scope.addData = function(){
     var person = {
       sno: sl+1
