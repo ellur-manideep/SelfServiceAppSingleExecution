@@ -31,24 +31,24 @@
       <div style="float:left">
         <table class="comicGreen">
           <tbody>
-          <tr>
-            <th>SlNo</th>
-            <th>Scenarios</th>
-            <th>Test Data</th>
-          </tr>
-          <tr ng-repeat="data in testData">
-            <td>{{data.sno}}</td>
-            <td>
-              <md-input-container style="margin-right: 10px;">
-                <label>Select Scenario</label>
-                <md-select ng-model="scen">
-                  <md-option ng-repeat="scenario in scenarios" value="{{scenario.Scenarios}}">{{scenario.Scenarios}}</md-option>
-                </md-select>
-              </md-input-container>
-            </td>
-            <td><input type="file" file-model="myFile[data.sno]"/></td>
-            <!--td><button ng-click="uploadFile(data.sno)">Upload</button></td-->
-          </tr>
+            <tr>
+              <th>SlNo</th>
+              <th>Scenarios</th>
+              <th>Test Data</th>
+            </tr>
+            <tr ng-repeat="data in testData">
+              <td>{{data.sno}}</td>
+              <td>
+                <md-input-container style="margin-right: 10px;">
+                  <label>Select Scenario</label>
+                  <md-select ng-model="scen[data.sno]">
+                    <md-option ng-repeat="scenario in scenarios" value="{{scenario.Scenarios}}">{{scenario.Scenarios}}</md-option>
+                  </md-select>
+                </md-input-container>
+              </td>
+              <td><input type="file" file-model="myFile[data.sno]"/></td>
+              <!--td><button ng-click="uploadFile(data.sno)">Upload</button></td-->
+            </tr>
           </tbody>
         </table>
       </div>
@@ -64,6 +64,22 @@
         </section>
         <div ng-if="uploaded" style="text-align:center">
           Please wait! Your test data files are getting uploaded...
+          <table class="comicGreen">
+            <tbody>
+              <tr>
+                <th>SlNo</th>
+                <th>Scenarios</th>
+                <th>Uploaded Testdata File</th>
+                <th>Build Updates</th>
+              </tr>
+              <tr ng-repeat="info in testData">
+                <td>{{info.sno}}</td>
+                <td>{{scen[info.sno]}}</td>
+                <td>{{myFile[info.sno].name}}</td>
+                <td>{{buildUpdates[info.sno]}}</td>
+              </tr>
+            </tbody>
+          </table>
         </div>
         <div ng-if="done" style="text-align:center">
           Thank You! Your Test Data is uploaded.<br>

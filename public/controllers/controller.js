@@ -19,11 +19,17 @@ sapApp.directive('fileModel', ['$parse', function ($parse) {
 sapApp.controller('SapCtrl', ['$scope', '$timeout', '$mdSidenav', '$log', '$http', '$window', '$location', function($scope, $timeout, $mdSidenav, $log, $http, $window, $location){
   $scope.done = false;  //Variable to display completion of execution
   $scope.uploaded = false;    //Variable to verify if the file has been uploaded or not
+  $scope.scen = [];
+
+  $scope.buildUpdates = [];
   var i = 0;
   var sl = 1;
   $scope.testData = [
     {sno: sl}
   ];
+  for (var temp = 1; temp <= $scope.testData.length; i++){
+      $scope.buildUpdates[temp] = "File yet to be uploaded";
+  }
   //Get request for fetching scenarios
   $http({
     method: 'GET',
@@ -68,7 +74,7 @@ sapApp.controller('SapCtrl', ['$scope', '$timeout', '$mdSidenav', '$log', '$http
     .then(function(res){
       console.log(res.data);
       $scope.lb=res.data;
-      $scope.jbfunc();
+      $window.setTimeout(function() { $scope.jbfunc();}, 5000);
     });
   }
 
@@ -76,6 +82,7 @@ sapApp.controller('SapCtrl', ['$scope', '$timeout', '$mdSidenav', '$log', '$http
 
   //Function to upload and build the respective file
   $scope.jenkinBuild = function(){
+    $scope.buildUpdates[i] = "File Upload In Progress";
     console.log($scope.testData.length);
     console.log($scope.myFile[i]);
     var file = $scope.myFile[i];
@@ -91,6 +98,7 @@ sapApp.controller('SapCtrl', ['$scope', '$timeout', '$mdSidenav', '$log', '$http
       headers: {'Content-Type': undefined}
     })
     .then(function(response){
+      $scope.buildUpdates[i] = "File Uploaded! Build In Progress";
       console.log(response.data);
       $scope.jfunc();
     });
