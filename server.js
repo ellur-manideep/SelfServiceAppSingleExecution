@@ -9,7 +9,6 @@ var fs = require('fs');
 var fs1 = require('fs-extra');
 var _ = require('underscore');
 var sleep = require('system-sleep');
-
 var jenkins = require('jenkins')({ baseUrl: 'http://admin:juniper123@d-itqtp-app-01:8080', crumbIssuer: true });
 
 //**************************************************************************************
@@ -48,15 +47,38 @@ removeDirForce("public/uploads/");
 //Uploading test data file and kickstart jenkins
 app.post("/multer", upload.single('file'), uploadFile);
 
+//Getting the last build number of the particular job from jenkins
+app.get('/jobInfo', function(req, res){
+  jenkins.job.get('ITQA_FT_UFT_SAP', function(err, data) {
+    if (err) throw err;
+    else {
+      console.log('Last build run: ', data.lastBuild.number);
+      res.json( data.lastBuild.number);
+    }
+  });
+});
+
+//Getting the build status of the last build number
+app.get('/jobBuild/:jn', function(req, res){
+  jenkins.build.get('ITQA_FT_UFT_SAP', req.params.jn, function(err, data) {
+    if (err) throw err;
+    else {
+      console.log('A build is currently Running: ', data.building);
+      res.json(data.building);
+    }
+  });
+})
+
 //********************************************************************************
 
 //Functions
 //Function to upload and run the jenkins
 function uploadFile(req, res){
   sleep(2*1000);
+  //Reading files from the folder upload
   fs.readdir('public/uploads/', (err, files) => {
     files.forEach(file => {
-      console.log(file);
+      console.log("Original file name: " + file);
       sleep(1*1000);
       //Renaming the uploaded file name to TestData_SAP_Automation.xls
       fs.rename('public/uploads/' + file, 'public/uploads/TestData_SAP_Automation.xls', function(err) {
@@ -70,20 +92,30 @@ function uploadFile(req, res){
               console.log(err);
             }
             else {
-              console.log("Moved");
-              //Pushing the cloned and updated repo by running the bat file
-              require('child_process').exec("push.bat", function (err, stdout, stderr) {
+              console.log("Moved the file to the cloned repo");
+              //Pulling the repo from gitlab for updating the local repo
+              require('child_process').exec("pull.bat", function (err, stdout, stderr) {
                 if (err) {
                   return console.log(err);
                 }
                 console.log(stdout);
-
-                //Triger Build from Jenkins
-                jenkins.job.build({name:"ITQA_FT_UFT_SAP", parameters: { name: 'Test' }}, function(err, data) {
-                  sleep(3*1000);
-                  if (err) throw err;
-                  console.log('queue item number', data);
-                  res.json(data);
+                sleep(5*1000);
+                //Pushing the cloned and updated repo
+                require('child_process').exec("push.bat", function (err, stdout, stderr) {
+                  if (err) {
+                    return console.log(err);
+                  }
+                  console.log(stdout);
+                  //Triger Build from Jenkins
+                  jenkins.job.build({name:"ITQA_FT_UFT_SAP", parameters: { name: 'Test' }}, function(err, data) {
+                    sleep(3*1000);
+                    if (err) throw err;
+                    else {
+                      console.log('queue item number', data);
+                      sleep(10*1000);
+                      res.json(data);
+                    }
+                  });
                 });
               });
             }
