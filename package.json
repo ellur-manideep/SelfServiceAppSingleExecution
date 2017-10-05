@@ -10,6 +10,7 @@
   "author": "manideep",
   "license": "ISC",
   "dependencies": {
+    "angular-spinners": "^5.0.4",
     "body-parser": "^1.17.2",
     "cross-spawn": "^5.1.0",
     "express": "^4.15.4",

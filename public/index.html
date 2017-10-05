@@ -26,6 +26,7 @@
 <body>
   <div layout="column" layout-align="top center">
     <img src="https://company-profile-images.s3.amazonaws.com/images/434718/995531/logo/juniper-networks-logo.jpg" />
+
     <h1 style="font-family: Arial; color: blue"><u>Self Service Application for SAP Regression Suite</u></h1>
     <div ng-controller="SapCtrl" class="md-padding" ng-cloak >
       <div style="float:left">
@@ -63,27 +64,30 @@
           <md-button ng-disabled="uploaded" class="md-raised md-primary" ng-click="jfunc()" style="font-family: Arial">Execute Script</md-button>
         </section>
         <div ng-if="uploaded" style="text-align:center">
-          Please wait! Your test data files are getting uploaded...
+          <b>Please wait! Your test data files are getting uploaded...</b>
+          <img id="mySpinner" src="Spinner.gif" ng-show="loading[0]"/>
           <table class="comicGreen">
             <tbody>
               <tr>
                 <th>SlNo</th>
                 <th>Scenarios</th>
-                <th>Uploaded Testdata File</th>
+                <th>Selected Testdata File</th>
                 <th>Build Updates</th>
               </tr>
               <tr ng-repeat="info in testData">
                 <td>{{info.sno}}</td>
                 <td>{{scen[info.sno]}}</td>
                 <td>{{myFile[info.sno].name}}</td>
-                <td>{{buildUpdates[info.sno]}}</td>
+                <td>
+                  {{buildUpdates[info.sno]}}
+                  <img id="mySpinner" src="Spinner.gif" ng-show="loading[info.sno]"/>
+                </td>
               </tr>
             </tbody>
           </table>
         </div>
         <div ng-if="done" style="text-align:center">
-          Thank You! Your Test Data is uploaded.<br>
-          Your Test Request is submitted and is in progress. The results will be mailed to you once the script execution is completed.
+          <b>Thank You! Test results will be mailed to you shortly.</b>
         </div>
       </div>
     </div>
