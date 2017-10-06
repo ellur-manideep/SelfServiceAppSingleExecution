@@ -19,9 +19,10 @@ sapApp.directive('fileModel', ['$parse', function ($parse) {
 sapApp.controller('SapCtrl', ['$scope', '$timeout', '$mdSidenav', '$log', '$http', '$window', '$location', function($scope, $timeout, $mdSidenav, $log, $http, $window, $location){
   $scope.done = false;  //Variable to display completion of execution
   $scope.uploaded = false;    //Variable to verify if the file has been uploaded or not
-  $scope.scen = [];
-
-  $scope.buildUpdates = ["File yet to be uploaded"];
+  $scope.scen = [];   //Variable to store list of selected scenarios
+  $scope.loading = [];    //Variable for spinner gif
+  $scope.buildUpdates = [];   //Variable to staore the updates
+  $scope.buildUpdates[1] = "File yet to be uploaded";
   var i = 0;
   var sl = 1;
   $scope.testData = [
@@ -46,6 +47,8 @@ sapApp.controller('SapCtrl', ['$scope', '$timeout', '$mdSidenav', '$log', '$http
     .then(function(res){
       console.log(res.data);
       if (res.data == false) {
+        $scope.buildUpdates[i] = "Script Execution Completed!"
+        $scope.loading[i] = false;
         i = i + 1;
         if(i<=$scope.testData.length){
           $scope.jenkinBuild();
@@ -64,6 +67,9 @@ sapApp.controller('SapCtrl', ['$scope', '$timeout', '$mdSidenav', '$log', '$http
   //Get request for fetching Latest build number
   $scope.jfunc = function(){
     $scope.uploaded = true;
+    if (i==0) {
+      $scope.loading[i] = true;
+    }
     $http({
       method: 'GET',
       url: '/jobInfo',
@@ -75,11 +81,13 @@ sapApp.controller('SapCtrl', ['$scope', '$timeout', '$mdSidenav', '$log', '$http
     });
   }
 
+
   $scope.myFile = [];//Storage for Test data files to be uploaded
 
   //Function to upload and build the respective file
   $scope.jenkinBuild = function(){
     $scope.buildUpdates[i] = "File Upload In Progress";
+    $scope.loading[i] = true;
     console.log($scope.testData.length);
     console.log($scope.myFile[i]);
     var file = $scope.myFile[i];
@@ -95,7 +103,7 @@ sapApp.controller('SapCtrl', ['$scope', '$timeout', '$mdSidenav', '$log', '$http
       headers: {'Content-Type': undefined}
     })
     .then(function(response){
-      $scope.buildUpdates[i] = "File Uploaded! Build In Progress";
+      $scope.buildUpdates[i] = "File Uploaded! Script execution In Progress";
       console.log(response.data);
       $scope.jfunc();
     });
@@ -107,6 +115,7 @@ sapApp.controller('SapCtrl', ['$scope', '$timeout', '$mdSidenav', '$log', '$http
       sno: sl+1
     };
     sl = person.sno;
+    $scope.buildUpdates[sl] = "File yet to be uploaded";
     $scope.testData.push(person);
   }
 
