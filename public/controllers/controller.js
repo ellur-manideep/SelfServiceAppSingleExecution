@@ -19,6 +19,7 @@ sapApp.directive('fileModel', ['$parse', function ($parse) {
 sapApp.controller('SapCtrl', ['$scope', '$timeout', '$mdSidenav', '$log', '$http', '$window', '$location', function($scope, $timeout, $mdSidenav, $log, $http, $window, $location){
   $scope.done = false;  //Variable to display completion of execution
   $scope.uploaded = false;    //Variable to verify if the file has been uploaded or not
+  $scope.ul = false;
   $scope.scen = [];   //Variable to store list of selected scenarios
   $scope.loading = [];    //Variable for spinner gif
   $scope.buildUpdates = [];   //Variable to staore the updates
@@ -38,6 +39,16 @@ sapApp.controller('SapCtrl', ['$scope', '$timeout', '$mdSidenav', '$log', '$http
     console.log(response.data);
     $scope.scenarios=response.data;
   });
+
+  $scope.selectScen = function(){
+    console.log($scope.testData.length);
+    for (var j = 1; j <= $scope.testData.length; j++) {
+      if($scope.scen[j] == undefined){
+        $window.alert("File not selected!");
+        return;
+      }
+    }
+  }
 
   //Get request for fetching latest build response
   $scope.jbfunc = function(){
@@ -67,6 +78,18 @@ sapApp.controller('SapCtrl', ['$scope', '$timeout', '$mdSidenav', '$log', '$http
 
   //Get request for fetching Latest build number
   $scope.jfunc = function(){
+    console.log($scope.testData.length);
+    for (var j = 1; j <= $scope.testData.length; j++) {
+      if($scope.scen[j] == undefined){
+        $window.alert("Scenario not selected!");
+        return;
+      }
+      if ($scope.myFile[j] == undefined) {
+        $window.alert("File not selected!");
+        return;
+      }
+    }
+    $scope.ul = true;
     $scope.uploaded = true;
     if (i==0) {
       $scope.loading[i] = true;
