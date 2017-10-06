@@ -19,7 +19,6 @@ sapApp.directive('fileModel', ['$parse', function ($parse) {
 sapApp.controller('SapCtrl', ['$scope', '$timeout', '$mdSidenav', '$log', '$http', '$window', '$location', function($scope, $timeout, $mdSidenav, $log, $http, $window, $location){
   $scope.done = false;  //Variable to display completion of execution
   $scope.uploaded = false;    //Variable to verify if the file has been uploaded or not
-  $scope.ul = false;
   $scope.scen = [];   //Variable to store list of selected scenarios
   $scope.loading = [];    //Variable for spinner gif
   $scope.buildUpdates = [];   //Variable to staore the updates
@@ -66,8 +65,8 @@ sapApp.controller('SapCtrl', ['$scope', '$timeout', '$mdSidenav', '$log', '$http
           $scope.jenkinBuild();
         }
         else {
-            console.log("done");
-            $scope.done=true;
+          console.log("done");
+          $scope.done=true;
         }
       }
       else {
@@ -89,7 +88,6 @@ sapApp.controller('SapCtrl', ['$scope', '$timeout', '$mdSidenav', '$log', '$http
         return;
       }
     }
-    $scope.ul = true;
     $scope.uploaded = true;
     if (i==0) {
       $scope.loading[i] = true;
@@ -104,7 +102,6 @@ sapApp.controller('SapCtrl', ['$scope', '$timeout', '$mdSidenav', '$log', '$http
       $window.setTimeout(function() { $scope.jbfunc();}, 5000);
     });
   }
-
 
   $scope.myFile = [];//Storage for Test data files to be uploaded
 

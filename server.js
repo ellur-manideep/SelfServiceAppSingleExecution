@@ -106,9 +106,9 @@ function uploadFile(req, res){
                     return console.log(err);
                   }
                   console.log(stdout);
-                  res.json("Testing");
+                  //res.json("Testing");
                   //Triger Build from Jenkins
-                  /*jenkins.job.build({name:"ITQA_FT_UFT_SAP", parameters: { name: 'Test' }}, function(err, data) {
+                  jenkins.job.build({name:"ITQA_FT_UFT_SAP", parameters: { name: 'Test' }}, function(err, data) {
                     sleep(3*1000);
                     if (err) throw err;
                     else {
@@ -116,7 +116,7 @@ function uploadFile(req, res){
                       sleep(10*1000);
                       res.json(data);
                     }
-                  });*/
+                  });
                 });
               });
             }
