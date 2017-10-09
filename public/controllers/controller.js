@@ -38,6 +38,16 @@ sapApp.controller('SapCtrl', ['$scope', '$timeout', '$mdSidenav', '$log', '$http
     $scope.scenarios=response.data;
   });
 
+  $scope.selectScen = function(){
+    console.log($scope.testData.length);
+    for (var j = 1; j <= $scope.testData.length; j++) {
+      if($scope.scen[j] == undefined){
+        $window.alert("File not selected!");
+        return;
+      }
+    }
+  }
+
   //Get request for fetching latest build response
   $scope.jbfunc = function(){
     $http({
@@ -66,6 +76,17 @@ sapApp.controller('SapCtrl', ['$scope', '$timeout', '$mdSidenav', '$log', '$http
 
   //Get request for fetching Latest build number
   $scope.jfunc = function(){
+    console.log($scope.testData.length);
+    for (var j = 1; j <= $scope.testData.length; j++) {
+      if($scope.scen[j] == undefined){
+        $window.alert("Scenario not selected!");
+        return;
+      }
+      if ($scope.myFile[j] == undefined) {
+        $window.alert("File not selected!");
+        return;
+      }
+    }
     $scope.uploaded = true;
     if (i==0) {
       $scope.loading[i] = true;
@@ -80,6 +101,7 @@ sapApp.controller('SapCtrl', ['$scope', '$timeout', '$mdSidenav', '$log', '$http
       $window.setTimeout(function() { $scope.jbfunc();}, 5000);
     });
   }
+
 
 
   $scope.myFile = [];//Storage for Test data files to be uploaded
