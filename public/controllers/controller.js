@@ -64,8 +64,8 @@ sapApp.controller('SapCtrl', ['$scope', '$timeout', '$mdSidenav', '$log', '$http
           $scope.jenkinBuild();
         }
         else {
-            console.log("done");
-            $scope.done=true;
+          console.log("done");
+          $scope.done=true;
         }
       }
       else {
@@ -101,8 +101,6 @@ sapApp.controller('SapCtrl', ['$scope', '$timeout', '$mdSidenav', '$log', '$http
       $window.setTimeout(function() { $scope.jbfunc();}, 5000);
     });
   }
-
-
 
   $scope.myFile = [];//Storage for Test data files to be uploaded
 

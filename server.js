@@ -106,6 +106,7 @@ function uploadFile(req, res){
                     return console.log(err);
                   }
                   console.log(stdout);
+                  //res.json("Testing");
                   //Triger Build from Jenkins
                   jenkins.job.build({name:"ITQA_FT_UFT_SAP", parameters: { name: 'Test' }}, function(err, data) {
                     sleep(3*1000);
