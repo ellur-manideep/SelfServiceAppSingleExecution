@@ -21,12 +21,10 @@ sapApp.controller('SapCtrl', ['$scope', '$timeout', '$mdSidenav', '$log', '$http
   $scope.uploading = false;    //Variable to verify if the file has been uploaded or not
   $scope.scen = [];   //Variable to store list of selected scenarios
   $scope.loading = [];    //Variable for spinner gif
-  $scope.id = [];
-  $scope.sl = 0;
   $scope.buildUpdates = [];   //Variable to staore the updates
   $scope.buildUpdates[1] = "File yet to be uploaded";
-  var ins;
-  var insid;
+  var ins;    //variable to store sl value from database
+  var insid;    //variable to store insertid value from database
   var sl = 1;
   $scope.testData = [
     {sno: sl}
@@ -54,6 +52,7 @@ sapApp.controller('SapCtrl', ['$scope', '$timeout', '$mdSidenav', '$log', '$http
         $scope.buildUpdates[ins] = "Script Execution Completed!"
         $scope.loading[ins] = false;
         if (ins != 0) {
+          //Updates the database execution to 2 implying completion of execution of the particular script
           $http({
               method: 'POST',
               url: '/updateExec/' + insid
@@ -104,6 +103,7 @@ sapApp.controller('SapCtrl', ['$scope', '$timeout', '$mdSidenav', '$log', '$http
   $scope.jenkinBuild = function(){
     $scope.buildUpdates[ins] = "File Upload In Progress";
     $scope.loading[ins] = true;
+    //Updates the database execution to 1 implying uploading of the file in progress
     $http({
       method: 'POST',
       url: '/updateExecution/' + insid
@@ -117,7 +117,7 @@ sapApp.controller('SapCtrl', ['$scope', '$timeout', '$mdSidenav', '$log', '$http
     var uploadUrl = "/multer";
     var fd = new FormData();
     fd.append('file', file);
-
+    //Request for uploading the file
     $http({
       method: 'POST',
       url: uploadUrl,
@@ -146,6 +146,7 @@ sapApp.controller('SapCtrl', ['$scope', '$timeout', '$mdSidenav', '$log', '$http
     $scope.testData.push(person);
   }
 
+  //Function to check if previous insert id's execution is 2 or not
   $scope.checkExec = function(){
     console.log(insid);
     if (insid != 1) {
@@ -178,6 +179,7 @@ sapApp.controller('SapCtrl', ['$scope', '$timeout', '$mdSidenav', '$log', '$http
     }
   }
 
+  //function to insert the details into db and getting the insert id and sl value
   $scope.ins = function(){
     for (var j = 1; j <= $scope.testData.length; j++) {
       if($scope.scen[j] == undefined){
