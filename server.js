@@ -77,6 +77,7 @@ app.get('/jobBuild/:jn', function(req, res){
   });
 })
 
+//Inserting into db
 app.post("/insert", function(req, res){
   console.log(req.body);
   console.log("Length of data to be inserted: " + req.body.length);
@@ -103,6 +104,7 @@ app.post("/insert", function(req, res){
   });
 });
 
+//Getting execution value from db
 app.get('/excecValue/:id', function(req, res){
   console.log("Id: " + req.params.id);
   pool.getConnection(function(err, connection){
@@ -122,6 +124,7 @@ app.get('/excecValue/:id', function(req, res){
   });
 });
 
+//Getting sl value from db
 app.get('/sl/:id', function(req, res){
   console.log("Id: " + req.params.id);
   pool.getConnection(function(err, connection){
@@ -141,6 +144,7 @@ app.get('/sl/:id', function(req, res){
   });
 });
 
+//Upadting the execution value to 1 in db
 app.post('/updateExecution/:id', function(req, res) {
   console.log("slno: " + req.params.id);
   pool.getConnection(function(err, connection){
@@ -160,6 +164,7 @@ app.post('/updateExecution/:id', function(req, res) {
   });
 });
 
+//Upadting the execution value to 2 in db
 app.post('/updateExec/:id', function(req, res) {
   console.log("slno: " + req.params.id);
   pool.getConnection(function(err, connection){
