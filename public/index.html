@@ -56,14 +56,14 @@
       <div style="float:right">
         <br>
         <br>
-        <md-button class="md-raised md-primary" ng-click="addData()" style="font-family: Arial" ng-disabled="uploaded">Add Row</md-button>
+        <md-button class="md-raised md-primary" ng-click="addData()" style="font-family: Arial" ng-disabled="uploading">Add Row</md-button>
       </div>
       <div style="clear:both">
         <br><br>
         <section layout="row" layout-sm="column" layout-align="center center" layout-wrap>
-          <md-button ng-disabled="uploaded" class="md-raised md-primary" ng-click="jfunc()" style="font-family: Arial">Execute Script</md-button>
+          <md-button ng-disabled="uploading" class="md-raised md-primary" ng-click="ins()" style="font-family: Arial">Execute Script</md-button>
         </section>
-        <div ng-if="uploaded" style="text-align:center">
+        <div ng-if="uploading" style="text-align:center">
           <b>Please wait! Your test data files are getting uploaded...</b>
           <img id="mySpinner" src="Spinner.gif" ng-show="loading[0]"/>
           <table class="comicGreen">

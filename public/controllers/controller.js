@@ -18,17 +18,19 @@ sapApp.directive('fileModel', ['$parse', function ($parse) {
 
 sapApp.controller('SapCtrl', ['$scope', '$timeout', '$mdSidenav', '$log', '$http', '$window', '$location', function($scope, $timeout, $mdSidenav, $log, $http, $window, $location){
   $scope.done = false;  //Variable to display completion of execution
-  $scope.uploaded = false;    //Variable to verify if the file has been uploaded or not
+  $scope.uploading = false;    //Variable to verify if the file has been uploaded or not
   $scope.scen = [];   //Variable to store list of selected scenarios
   $scope.loading = [];    //Variable for spinner gif
+  $scope.id = [];
+  $scope.sl = 0;
   $scope.buildUpdates = [];   //Variable to staore the updates
   $scope.buildUpdates[1] = "File yet to be uploaded";
-  var i = 0;
+  var ins;
+  var insid;
   var sl = 1;
   $scope.testData = [
     {sno: sl}
   ];
-
   //Get request for fetching scenarios
   $http({
     method: 'GET',
@@ -39,16 +41,6 @@ sapApp.controller('SapCtrl', ['$scope', '$timeout', '$mdSidenav', '$log', '$http
     $scope.scenarios=response.data;
   });
 
-  $scope.selectScen = function(){
-    console.log($scope.testData.length);
-    for (var j = 1; j <= $scope.testData.length; j++) {
-      if($scope.scen[j] == undefined){
-        $window.alert("File not selected!");
-        return;
-      }
-    }
-  }
-
   //Get request for fetching latest build response
   $scope.jbfunc = function(){
     $http({
@@ -56,17 +48,33 @@ sapApp.controller('SapCtrl', ['$scope', '$timeout', '$mdSidenav', '$log', '$http
       url: '/jobBuild/' + $scope.lb,
     })
     .then(function(res){
-      console.log(res.data);
+      console.log("Latest Build Run Status: " + res.data);
       if (res.data == false) {
-        $scope.buildUpdates[i] = "Script Execution Completed!"
-        $scope.loading[i] = false;
-        i = i + 1;
-        if(i<=$scope.testData.length){
+        $scope.loading[0] = false;
+        $scope.buildUpdates[ins] = "Script Execution Completed!"
+        $scope.loading[ins] = false;
+        if (ins != 0) {
+          $http({
+              method: 'POST',
+              url: '/updateExec/' + insid
+            })
+            .then(function(response){
+              console.log("Updated execution to 2")
+              console.log(response.data);
+            });
+        }
+        console.log("Previous ins value: " + ins);
+        console.log("Previous insid value: " + insid);
+        ins++;
+        insid++;
+        console.log("Current ins value: " + ins);
+        console.log("Current insid value: " + insid);
+        if (ins <= $scope.testData.length) {
           $scope.jenkinBuild();
         }
         else {
-          console.log("done");
-          $scope.done=true;
+          console.log("Done! Your request is completed!");
+          $scope.done = true;
         }
       }
       else {
@@ -75,29 +83,16 @@ sapApp.controller('SapCtrl', ['$scope', '$timeout', '$mdSidenav', '$log', '$http
     });
   }
 
+
   //Get request for fetching Latest build number
   $scope.jfunc = function(){
-    console.log($scope.testData.length);
-    for (var j = 1; j <= $scope.testData.length; j++) {
-      if($scope.scen[j] == undefined){
-        $window.alert("Scenario not selected!");
-        return;
-      }
-      if ($scope.myFile[j] == undefined) {
-        $window.alert("File not selected!");
-        return;
-      }
-    }
-    $scope.uploaded = true;
-    if (i==0) {
-      $scope.loading[i] = true;
-    }
+
     $http({
       method: 'GET',
       url: '/jobInfo',
     })
     .then(function(res){
-      console.log(res.data);
+      console.log("Latest Build Run: " + res.data);
       $scope.lb=res.data;
       $window.setTimeout(function() { $scope.jbfunc();}, 5000);
     });
@@ -107,11 +102,18 @@ sapApp.controller('SapCtrl', ['$scope', '$timeout', '$mdSidenav', '$log', '$http
 
   //Function to upload and build the respective file
   $scope.jenkinBuild = function(){
-    $scope.buildUpdates[i] = "File Upload In Progress";
-    $scope.loading[i] = true;
-    console.log($scope.testData.length);
-    console.log($scope.myFile[i]);
-    var file = $scope.myFile[i];
+    $scope.buildUpdates[ins] = "File Upload In Progress";
+    $scope.loading[ins] = true;
+    $http({
+      method: 'POST',
+      url: '/updateExecution/' + insid
+    })
+    .then(function(response){
+      console.log("Updated execution to 1")
+      console.log(response.data);
+    });
+    console.log($scope.myFile[ins]);
+    var file = $scope.myFile[ins];
     var uploadUrl = "/multer";
     var fd = new FormData();
     fd.append('file', file);
@@ -124,11 +126,15 @@ sapApp.controller('SapCtrl', ['$scope', '$timeout', '$mdSidenav', '$log', '$http
       headers: {'Content-Type': undefined}
     })
     .then(function(response){
-      $scope.buildUpdates[i] = "File Uploaded! Script execution In Progress";
-      console.log(response.data);
+      $scope.buildUpdates[ins] = "File Uploaded! Script execution In Progress";
+      console.log("Queue item number: " + response.data);
       $scope.jfunc();
     });
   };
+
+  $scope.insData = [
+    {scenarios: null, testdatafile: null, sl: null}
+  ];
 
   //Function to add rows
   $scope.addData = function(){
@@ -140,4 +146,79 @@ sapApp.controller('SapCtrl', ['$scope', '$timeout', '$mdSidenav', '$log', '$http
     $scope.testData.push(person);
   }
 
+  $scope.checkExec = function(){
+    console.log(insid);
+    if (insid != 1) {
+      var previd = insid - 1;
+      console.log("Previous insid: " + previd);
+      $http({
+        method: 'GET',
+        url: '/excecValue/' + previd
+      })
+      .then(function(response){
+        console.log("Previous execution value: " + response.data[0].execution)
+        if (response.data[0].execution == 2) {
+          ins--;
+          insid--;
+          $scope.jfunc();
+        }
+        else {
+          $window.setTimeout(function() { $scope.checkExec();}, 10000);
+        }
+      });
+    }
+    else {
+      console.log("ins value: " + ins);
+      console.log("insid value: " + insid);
+      ins--;
+      insid--;
+      console.log("ins value: " + ins);
+      console.log("insid value: " + insid);
+      $scope.jfunc();
+    }
+  }
+
+  $scope.ins = function(){
+    for (var j = 1; j <= $scope.testData.length; j++) {
+      if($scope.scen[j] == undefined){
+        $window.alert("Scenario not selected!");
+        return;
+      }
+      if ($scope.myFile[j] == undefined) {
+        $window.alert("File not selected!");
+        return;
+      }
+    };
+    $scope.uploading = true;
+    $scope.loading[0] = true;
+
+    for (var p = 1; p <= $scope.testData.length; p++) {
+      var data = {
+        scenarios: $scope.scen[p],
+        testdatafile: $scope.myFile[p].name,
+        sl: p
+      };
+      $scope.insData.push(data);
+    }
+    $http({
+      method: 'POST',
+      url: '/insert',
+      data: $scope.insData
+    })
+    .then(function(response){
+      console.log("Data Inserted");
+      console.log("Insert Id: " + response.data);
+      insid = response.data;
+      $http({
+        method: 'GET',
+        url: '/sl/' + insid
+      })
+      .then(function(res){
+        console.log("sl value for the first insid: " + res.data[0].sl);
+        ins = res.data[0].sl;
+      });
+      $window.setTimeout(function() { $scope.checkExec();}, 3000);
+
+    });
+  }
 }]);

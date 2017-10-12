@@ -10,6 +10,14 @@ var fs1 = require('fs-extra');
 var _ = require('underscore');
 var sleep = require('system-sleep');
 var jenkins = require('jenkins')({ baseUrl: 'http://admin:juniper123@d-itqtp-app-01:8080', crumbIssuer: true });
+var mysql = require('mysql');
+var pool = mysql.createPool({
+  connectionLimit: 50,
+  host : 'inttankdev.cwkirvnl2kse.us-west-2.rds.amazonaws.com',
+  user : 'inttankuser',
+  password : 'inttankuser',
+  database : 'inttank'
+});
 
 //**************************************************************************************
 // Gitlab Repo Path
@@ -69,6 +77,107 @@ app.get('/jobBuild/:jn', function(req, res){
   });
 });
 
+app.post("/insert", function(req, res){
+  console.log(req.body);
+  console.log("Length of data to be inserted: " + req.body.length);
+  var jsondata = req.body;
+  var values = [];
+  for (var i = 1; i < jsondata.length; i++) {
+    values.push([jsondata[i].scenarios, jsondata[i].testdatafile, jsondata[i].sl]);
+  }
+  console.log(values);
+  pool.getConnection(function(err, connection){
+    if (err) {
+      throw err;
+    };
+    connection.query('INSERT INTO ssa (scenarios, testdatafile, sl) VALUES ?', [values], function(err, result){
+      if(!err){
+        console.log(result.insertId);
+        res.json(result.insertId);
+        connection.release();
+      }
+      else{
+        console.log(err);
+      }
+    });
+  });
+});
+
+app.get('/excecValue/:id', function(req, res){
+  console.log("Id: " + req.params.id);
+  pool.getConnection(function(err, connection){
+    if (err) {
+      throw err;
+    };
+    connection.query('SELECT execution from ssa where slno = ?', req.params.id, function(err, result){
+      if(!err){
+        console.log(result);
+        res.json(result);
+        connection.release();
+      }
+      else{
+        console.log(err);
+      }
+    });
+  });
+});
+
+app.get('/sl/:id', function(req, res){
+  console.log("Id: " + req.params.id);
+  pool.getConnection(function(err, connection){
+    if (err) {
+      throw err;
+    };
+    connection.query('SELECT sl from ssa where slno = ?', req.params.id, function(err, result){
+      if(!err){
+        console.log(result);
+        res.json(result);
+        connection.release();
+      }
+      else{
+        console.log(err);
+      }
+    });
+  });
+});
+
+app.post('/updateExecution/:id', function(req, res) {
+  console.log("slno: " + req.params.id);
+  pool.getConnection(function(err, connection){
+    if (err) {
+      throw err;
+    };
+    connection.query('UPDATE ssa set execution = 1 where slno = ?', req.params.id, function(err, result){
+      if(!err){
+        console.log(result);
+        res.json("Updated");
+        connection.release();
+      }
+      else{
+        console.log("error");
+      }
+    });
+  });
+});
+
+app.post('/updateExec/:id', function(req, res) {
+  console.log("slno: " + req.params.id);
+  pool.getConnection(function(err, connection){
+    if (err) {
+      throw err;
+    };
+    connection.query('UPDATE ssa set execution = 2 where slno = ?', req.params.id, function(err, result){
+      if(!err){
+        console.log(result);
+        res.json("Updated");
+        connection.release();
+      }
+      else{
+        console.log("error");
+      }
+    });
+  });
+})
 //********************************************************************************
 
 //Functions
@@ -160,7 +269,6 @@ function removeDirForce(path) {
     }
   });
 }
-
 
 app.listen(8888);
 console.log("Port 8888");
