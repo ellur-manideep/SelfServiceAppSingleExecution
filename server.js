@@ -18,7 +18,8 @@ var pool = mysql.createPool({
   password : 'inttankuser',
   database : 'inttank'
 });
-
+var slNumber;
+var currSlno;
 //**************************************************************************************
 // Gitlab Repo Path
 var url = "https://it-gitlab.junipercloud.net/wpsa-qa/IT-SAP-UFT-AUTOMATION_POC.git";
@@ -52,31 +53,6 @@ app.get('/getScenarios', function(req, res){
 //Function call to remove files from a directory
 removeDirForce("public/uploads/");
 
-//Uploading test data file and kickstart jenkins
-app.post("/multer", upload.single('file'), uploadFile);
-
-//Getting the last build number of the particular job from jenkins
-app.get('/jobInfo', function(req, res){
-  jenkins.job.get('ITQA_FT_UFT_SAP', function(err, data) {
-    if (err) throw err;
-    else {
-      console.log('Last build run: ', data.lastBuild.number);
-      res.json( data.lastBuild.number);
-    }
-  });
-});
-
-//Getting the build status of the last build number
-app.get('/jobBuild/:jn', function(req, res){
-  jenkins.build.get('ITQA_FT_UFT_SAP', req.params.jn, function(err, data) {
-    if (err) throw err;
-    else {
-      console.log('A build is currently Running: ', data.building);
-      res.json(data.building);
-    }
-  });
-});
-
 //Inserting into db
 app.post("/insert", function(req, res){
   console.log(req.body);
@@ -104,141 +80,227 @@ app.post("/insert", function(req, res){
   });
 });
 
-//Getting execution value from db
-app.get('/excecValue/:id', function(req, res){
-  console.log("Id: " + req.params.id);
-  pool.getConnection(function(err, connection){
-    if (err) {
-      throw err;
-    };
-    connection.query('SELECT execution from ssa where slno = ?', req.params.id, function(err, result){
-      if(!err){
-        console.log(result);
-        res.json(result);
-        connection.release();
-      }
-      else{
-        console.log(err);
-      }
-    });
-  });
-});
+app.post("/multer", upload.single('file'), insFile);
 
-//Getting sl value from db
-app.get('/sl/:id', function(req, res){
-  console.log("Id: " + req.params.id);
-  pool.getConnection(function(err, connection){
-    if (err) {
-      throw err;
-    };
-    connection.query('SELECT sl from ssa where slno = ?', req.params.id, function(err, result){
-      if(!err){
-        console.log(result);
-        res.json(result);
-        connection.release();
-      }
-      else{
-        console.log(err);
-      }
-    });
-  });
-});
-
-//Upadting the execution value to 1 in db
-app.post('/updateExecution/:id', function(req, res) {
-  console.log("slno: " + req.params.id);
-  pool.getConnection(function(err, connection){
-    if (err) {
-      throw err;
-    };
-    connection.query('UPDATE ssa set execution = 1 where slno = ?', req.params.id, function(err, result){
-      if(!err){
-        console.log(result);
-        res.json("Updated");
-        connection.release();
-      }
-      else{
-        console.log("error");
-      }
-    });
-  });
-});
-
-//Upadting the execution value to 2 in db
-app.post('/updateExec/:id', function(req, res) {
-  console.log("slno: " + req.params.id);
-  pool.getConnection(function(err, connection){
-    if (err) {
-      throw err;
-    };
-    connection.query('UPDATE ssa set execution = 2 where slno = ?', req.params.id, function(err, result){
-      if(!err){
-        console.log(result);
-        res.json("Updated");
-        connection.release();
-      }
-      else{
-        console.log("error");
-      }
-    });
-  });
-})
+startExec();
 //********************************************************************************
 
 //Functions
-//Function to upload and run the jenkins
-function uploadFile(req, res){
+function startExec(){
+  pool.getConnection(function(err, connection){
+    if (err) {
+      throw err;
+    };
+    connection.query('SELECT min(slno) as minSlno from ssa where execution = 0', function(err, result){
+      if(!err){
+        console.log("slno for execution: " + result[0].minSlno);
+        connection.release();
+        if (result[0].minSlno == null) {
+          sleep(5000);
+          startExec();
+        }
+        else {
+          slNumber = result[0].minSlno;
+          console.log(slNumber-1);
+          if (slNumber != 1) {
+            console.log("Previous Slno: " + slNumber-1)
+            checkExec(slNumber-1);
+          }
+          else {
+            uploadFile(slNumber);
+          }
+        }
+      }
+      else{
+        console.log(err);
+      }
+    });
+  });
+}
+
+function checkExec(prevSlno){
+  pool.getConnection(function(err, connection){
+    if (err) {
+      throw err;
+    };
+    console.log("Previous slno: " + prevSlno);
+    connection.query('SELECT execution from ssa where slno = ?', prevSlno, function(err, result){
+      if(!err){
+        console.log("Previous execution value: " + result[0].execution);
+        connection.release();
+        if (result[0].execution == 2) {
+          uploadFile(slNumber);
+        }
+        else {
+          sleep(5000);
+          console.log("Recursive call for checking execution value of previous slno.");
+          checkExec(prevSlno);
+        }
+      }
+      else{
+        console.log(err);
+      }
+    });
+  });
+}
+
+function insFile(req, res){
   sleep(2*1000);
-  //Reading files from the folder upload
   fs.readdir('public/uploads/', (err, files) => {
     files.forEach(file => {
       console.log("Original file name: " + file);
       sleep(1*1000);
-      //Renaming the uploaded file name to TestData_SAP_Automation.xls
-      fs.rename('public/uploads/' + file, 'public/uploads/TestData_SAP_Automation.xls', function(err) {
-        if ( err ) console.log('ERROR: ' + err);
+      fs1.move('public/uploads/' + file, 'public/InsertedFiles/' + file, function(err){
+        if(err){
+          console.log(err);
+        }
         else {
-          removeDirForce("IT-SAP-UFT-AUTOMATION_POC/TestData/");
-          sleep(1*1000);
-          //Moving the uploaded file to the cloned repo
-          fs1.move('public/uploads/TestData_SAP_Automation.xls', 'IT-SAP-UFT-AUTOMATION_POC/TestData/TestData_SAP_Automation.xls', function(err){
-            if(err){
-              console.log(err);
-            }
-            else {
-              console.log("Moved the file to the cloned repo");
-              //Pulling the repo from gitlab for updating the local repo
-              require('child_process').exec("pull.bat", function (err, stdout, stderr) {
-                if (err) {
-                  return console.log(err);
-                }
-                console.log(stdout);
-                sleep(5*1000);
-                //Pushing the cloned and updated repo
-                require('child_process').exec("push.bat", function (err, stdout, stderr) {
-                  if (err) {
-                    return console.log(err);
-                  }
-                  console.log(stdout);
-                  //res.json("Testing");
-                  //Triger Build from Jenkins
-                  jenkins.job.build({name:"ITQA_FT_UFT_SAP", parameters: { name: 'Test' }}, function(err, data) {
-                    sleep(3*1000);
-                    if (err) throw err;
-                    else {
-                      console.log('queue item number', data);
-                      sleep(10*1000);
-                      res.json(data);
-                    }
-                  });
-                });
-              });
-            }
-          });
+          console.log("File moved to InsertedFiles folder");
+          res.json(file);
         }
       });
     });
-  })
+  });
+}
+
+function updateExec1(currSlno){
+  console.log("slno: " + currSlno);
+  pool.getConnection(function(err, connection){
+    if (err) {
+      throw err;
+    };
+    connection.query('UPDATE ssa set execution = 1 where slno = ?', currSlno, function(err, result){
+      if(!err){
+        console.log(result);
+        console.log("Updated to 1");
+        connection.release();
+      }
+      else{
+        console.log("error");
+      }
+    });
+  });
+}
+
+function updateExec2(currSlno){
+  console.log("slno: " + currSlno);
+  pool.getConnection(function(err, connection){
+    if (err) {
+      throw err;
+    };
+    connection.query('UPDATE ssa set execution = 2 where slno = ?', currSlno, function(err, result){
+      if(!err){
+        console.log(result);
+        console.log("Updated to 2");
+        connection.release();
+        sleep(3000);
+        startExec();
+      }
+      else{
+        console.log("error");
+      }
+    });
+  });
+}
+
+//Function to upload and run the jenkins
+function uploadFile(currSlno){
+  updateExec1(currSlno);
+  sleep(2*1000);
+  pool.getConnection(function(err, connection){
+    if (err) {
+      throw err;
+    };
+    connection.query('SELECT testdatafile from ssa where slno = ?', currSlno, function(err, result){
+      if(!err){
+        console.log("Test Data file name: " + result[0].testdatafile);
+        connection.release();
+        //Reading files from the folder upload
+        fs.readdir('public/InsertedFiles/', (err, files) => {
+          files.forEach(file => {
+            if (file == result[0].testdatafile) {
+              console.log("Original file name: " + file);
+              sleep(1*1000);
+              //Renaming the uploaded file name to TestData_SAP_Automation.xls
+              fs.rename('public/InsertedFiles/' + file, 'public/InsertedFiles/TestData_SAP_Automation.xls', function(err) {
+                if ( err ) console.log('ERROR: ' + err);
+                else {
+                  console.log("Renamed the file.");
+                  removeDirForce("IT-SAP-UFT-AUTOMATION_POC/TestData/");
+                  sleep(1*1000);
+                  //Moving the uploaded file to the cloned repo
+                  fs1.move('public/InsertedFiles/TestData_SAP_Automation.xls', 'IT-SAP-UFT-AUTOMATION_POC/TestData/TestData_SAP_Automation.xls', function(err){
+                    if(err){
+                      console.log(err);
+                    }
+                    else {
+                      console.log("Moved the file to the cloned repo");
+                      //Pulling the repo from gitlab for updating the local repo
+                      require('child_process').exec("pull.bat", function (err, stdout, stderr) {
+                        if (err) {
+                          return console.log(err);
+                        }
+                        console.log(stdout);
+                        sleep(5*1000);
+                        //Pushing the cloned and updated repo
+                        require('child_process').exec("push.bat", function (err, stdout, stderr) {
+                          if (err) {
+                            return console.log(err);
+                          }
+                          console.log(stdout);
+                          //Triger Build from Jenkins
+                          jenkins.job.build({name:"ITQA_FT_UFT_SAP", parameters: { name: 'Test' }}, function(err, data) {
+                            sleep(3*1000);
+                            if (err) throw err;
+                            else {
+                              console.log('queue item number', data);
+                              sleep(10*1000);
+                              getJobInfo(currSlno);
+                            }
+                          });
+                        });
+                      });
+                    }
+                  });
+                }
+              });
+            }
+
+          });
+        })
+      }
+      else{
+        console.log("error");
+      }
+    });
+  });
+
+}
+
+function getJobInfo(currSlno){
+  jenkins.job.get('ITQA_FT_UFT_SAP', function(err, data) {
+    if (err) throw err;
+    else {
+      console.log('Last build run: ', data.lastBuild.number);
+      getBuildInfo(data.lastBuild.number, currSlno);
+    }
+  });
+}
+
+function getBuildInfo(buildNumber, currSlno){
+  jenkins.build.get('ITQA_FT_UFT_SAP', buildNumber, function(err, data) {
+    if (err) throw err;
+    else {
+      console.log('A build is currently Running: ', data.building);
+      if (data.building == true) {
+        sleep(5000);
+        getBuildInfo(buildNumber, currSlno);
+      }
+      else {
+        updateExec2(currSlno);
+      }
+    }
+  });
 }
 
 //Function to remove files in a directory

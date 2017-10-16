@@ -21,10 +21,10 @@ sapApp.controller('SapCtrl', ['$scope', '$timeout', '$mdSidenav', '$log', '$http
   $scope.uploading = false;    //Variable to verify if the file has been uploaded or not
   $scope.scen = [];   //Variable to store list of selected scenarios
   $scope.loading = [];    //Variable for spinner gif
-  $scope.buildUpdates = [];   //Variable to staore the updates
-  $scope.buildUpdates[1] = "File yet to be uploaded";
+  $scope.myFile = [];   //Variable to store Test data files
   var ins;    //variable to store sl value from database
   var insid;    //variable to store insertid value from database
+  var insertFile = 0;
   var sl = 1;
   $scope.testData = [
     {sno: sl}
@@ -39,99 +39,6 @@ sapApp.controller('SapCtrl', ['$scope', '$timeout', '$mdSidenav', '$log', '$http
     $scope.scenarios=response.data;
   });
 
-  //Get request for fetching latest build response
-  $scope.jbfunc = function(){
-    $http({
-      method: 'GET',
-      url: '/jobBuild/' + $scope.lb,
-    })
-    .then(function(res){
-      console.log("Latest Build Run Status: " + res.data);
-      if (res.data == false) {
-        $scope.loading[0] = false;
-        $scope.buildUpdates[ins] = "Script Execution Completed!"
-        $scope.loading[ins] = false;
-        if (ins != 0) {
-          //Updates the database execution to 2 implying completion of execution of the particular script
-          $http({
-              method: 'POST',
-              url: '/updateExec/' + insid
-            })
-            .then(function(response){
-              console.log("Updated execution to 2")
-              console.log(response.data);
-            });
-        }
-        console.log("Previous ins value: " + ins);
-        console.log("Previous insid value: " + insid);
-        ins++;
-        insid++;
-        console.log("Current ins value: " + ins);
-        console.log("Current insid value: " + insid);
-        if (ins <= $scope.testData.length) {
-          $scope.jenkinBuild();
-        }
-        else {
-          console.log("Done! Your request is completed!");
-          $scope.done = true;
-        }
-      }
-      else {
-        $window.setTimeout(function() { $scope.jbfunc();}, 20000);
-      }
-    });
-  }
-
-
-  //Get request for fetching Latest build number
-  $scope.jfunc = function(){
-
-    $http({
-      method: 'GET',
-      url: '/jobInfo',
-    })
-    .then(function(res){
-      console.log("Latest Build Run: " + res.data);
-      $scope.lb=res.data;
-      $window.setTimeout(function() { $scope.jbfunc();}, 5000);
-    });
-  }
-
-  $scope.myFile = [];//Storage for Test data files to be uploaded
-
-  //Function to upload and build the respective file
-  $scope.jenkinBuild = function(){
-    $scope.buildUpdates[ins] = "File Upload In Progress";
-    $scope.loading[ins] = true;
-    //Updates the database execution to 1 implying uploading of the file in progress
-    $http({
-      method: 'POST',
-      url: '/updateExecution/' + insid
-    })
-    .then(function(response){
-      console.log("Updated execution to 1")
-      console.log(response.data);
-    });
-    console.log($scope.myFile[ins]);
-    var file = $scope.myFile[ins];
-    var uploadUrl = "/multer";
-    var fd = new FormData();
-    fd.append('file', file);
-    //Request for uploading the file
-    $http({
-      method: 'POST',
-      url: uploadUrl,
-      data: fd,
-      transformRequest: angular.identity,
-      headers: {'Content-Type': undefined}
-    })
-    .then(function(response){
-      $scope.buildUpdates[ins] = "File Uploaded! Script execution In Progress";
-      console.log("Queue item number: " + response.data);
-      $scope.jfunc();
-    });
-  };
-
   $scope.insData = [
     {scenarios: null, testdatafile: null, sl: null}
   ];
@@ -144,39 +51,6 @@ sapApp.controller('SapCtrl', ['$scope', '$timeout', '$mdSidenav', '$log', '$http
     sl = person.sno;
     $scope.buildUpdates[sl] = "File yet to be uploaded";
     $scope.testData.push(person);
-  }
-
-  //Function to check if previous insert id's execution is 2 or not
-  $scope.checkExec = function(){
-    console.log(insid);
-    if (insid != 1) {
-      var previd = insid - 1;
-      console.log("Previous insid: " + previd);
-      $http({
-        method: 'GET',
-        url: '/excecValue/' + previd
-      })
-      .then(function(response){
-        console.log("Previous execution value: " + response.data[0].execution)
-        if (response.data[0].execution == 2) {
-          ins--;
-          insid--;
-          $scope.jfunc();
-        }
-        else {
-          $window.setTimeout(function() { $scope.checkExec();}, 10000);
-        }
-      });
-    }
-    else {
-      console.log("ins value: " + ins);
-      console.log("insid value: " + insid);
-      ins--;
-      insid--;
-      console.log("ins value: " + ins);
-      console.log("insid value: " + insid);
-      $scope.jfunc();
-    }
   }
 
   //function to insert the details into db and getting the insert id and sl value
@@ -194,33 +68,51 @@ sapApp.controller('SapCtrl', ['$scope', '$timeout', '$mdSidenav', '$log', '$http
     $scope.uploading = true;
     $scope.loading[0] = true;
 
-    for (var p = 1; p <= $scope.testData.length; p++) {
-      var data = {
-        scenarios: $scope.scen[p],
-        testdatafile: $scope.myFile[p].name,
-        sl: p
-      };
-      $scope.insData.push(data);
-    }
-    $http({
-      method: 'POST',
-      url: '/insert',
-      data: $scope.insData
-    })
-    .then(function(response){
-      console.log("Data Inserted");
-      console.log("Insert Id: " + response.data);
-      insid = response.data;
-      $http({
-        method: 'GET',
-        url: '/sl/' + insid
-      })
-      .then(function(res){
-        console.log("sl value for the first insid: " + res.data[0].sl);
-        ins = res.data[0].sl;
-      });
-      $window.setTimeout(function() { $scope.checkExec();}, 3000);
+    $scope.insertFile();
 
-    });
+  }
+
+  $scope.insertFile = function(){
+    insertFile++;
+    console.log("insertFile Value: " + insertFile);
+    if (insertFile <= $scope.testData.length) {
+      console.log($scope.myFile[insertFile]);
+      var file = $scope.myFile[insertFile];
+      var uploadUrl = "/multer";
+      var fd = new FormData();
+      fd.append('file', file);
+      //Request for uploading the file
+      $http({
+        method: 'POST',
+        url: uploadUrl,
+        data: fd,
+        transformRequest: angular.identity,
+        headers: {'Content-Type': undefined}
+      })
+      .then(function(response){
+        console.log(response.data);
+        var data = {
+          scenarios: $scope.scen[insertFile],
+          testdatafile: response.data,
+          sl: insertFile
+        };
+        $scope.insData.push(data);
+        console.log("Data after pushing: " + $scope.insData);
+        $http({
+          method: 'POST',
+          url: '/insert',
+          data: $scope.insData
+        })
+        .then(function(response){
+          console.log("Data Inserted");
+          $scope.insData.pop();
+          console.log("Data after popping: " + $scope.insData);
+          $scope.insertFile();
+        });
+      });
+    }
+    else {
+      console.log("All your data has been inserted");
+    }
   }
 }]);
