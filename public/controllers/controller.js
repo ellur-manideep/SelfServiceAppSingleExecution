@@ -56,6 +56,7 @@ sapApp.controller('SapCtrl', ['$scope', '$timeout', '$mdSidenav', '$log', '$http
     $scope.scenarios=response.data;
   });
 
+//Get request for fetching whole db details
 $scope.getData = function(){
   $http({
     method: 'GET',
@@ -80,6 +81,7 @@ $scope.getData = function(){
   });
 }
 
+//Function call to get whole db details
 $scope.getData();
 
   $scope.insData = [
@@ -98,7 +100,7 @@ $scope.getData();
     $scope.testData.push(person);
   }
 
-  //function to insert the details into db and getting the insert id and sl value
+  //function to insert the details into db
   $scope.ins = function(){
     if ($scope.userName == undefined) {
         $window.alert("Username Not entered");
@@ -121,6 +123,7 @@ $scope.getData();
     $scope.insertTestData();
   }
 
+  //Function to insert Test Data Length into insertion db
   $scope.insertTestData = function(){
     console.log("Length to be inserted: " +  $scope.testData.length);
     var info = {
@@ -141,6 +144,7 @@ $scope.getData();
     });
   }
 
+  //Function to get the length of previously inserted Test Data Length
   $scope.getLength = function(){
     if (inslenid != 1) {
       console.log("Previous inslen: " + previnslenid);
@@ -151,18 +155,19 @@ $scope.getData();
       .then(function(response){
         console.log("Previous testdatalength:" + response.data);
         if (response.data == 0) {
-            $scope.insertFile();
+            $scope.insertFile();  //Function call to insert files ensuring insertion of previous data into ssa db
         }
         else {
-          $scope.getLength();
+          $scope.getLength(); //Recursively calling the function untill ensuring queuing of data
         }
       });
     }
     else {
-      $scope.insertFile();
+      $scope.insertFile();  //Function to insert data for the first slno
     }
   }
 
+  //Function to insert Test Data Files
   $scope.insertFile = function(){
     insertFile++;
     console.log("insertFile Value: " + insertFile);
@@ -210,6 +215,7 @@ $scope.getData();
     }
   }
 
+  //Function to update the insertion db Test Data Length
   $scope.updateLen = function(){
     $http({
       method: 'POST',
@@ -221,6 +227,7 @@ $scope.getData();
     });
   }
 
+  //Function to get the status of the user request
   $scope.getStatus = function(){
     $location.path('/status');
   }

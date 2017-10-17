@@ -18,9 +18,10 @@ var pool = mysql.createPool({
   password : 'inttankuser',
   database : 'inttank'
 });
-var slNumber;
-var currSlno;
 //**************************************************************************************
+var slNumber; //Variable to store data from db
+var currSlno; //Variable to store data from db
+
 // Gitlab Repo Path
 var url = "https://it-gitlab.junipercloud.net/wpsa-qa/IT-SAP-UFT-AUTOMATION_POC.git";
 
@@ -50,6 +51,7 @@ app.get('/getScenarios', function(req, res){
   res.json(xlData);
 });
 
+//Getting whole Test Data File details from db
 app.get('/getData', function(req, res){
   pool.getConnection(function(err, connection){
     if (err) {
@@ -67,10 +69,10 @@ app.get('/getData', function(req, res){
   });
 })
 
-//Function call to remove files from a directory
+//Function call to remove files from uploads directory
 removeDirForce("public/uploads/");
 
-//Inserting into db
+//Inserting Test Data File details into db: ssa
 app.post("/insert", function(req, res){
   console.log(req.body);
   console.log("Length of data to be inserted: " + req.body.length);
@@ -97,6 +99,7 @@ app.post("/insert", function(req, res){
   });
 });
 
+//Inserting Test Data Lenth details to db: insertion
 app.post("/insertLength", function(req, res){
   console.log("Data to be inserted: " + req.body);
   var jsondata = req.body;
@@ -122,6 +125,7 @@ app.post("/insertLength", function(req, res){
   });
 });
 
+//Decrementing Test Data Length by 1 ensuring completion of data insertion into ssa
 app.post("/updateLen/:id", function(req, res){
   console.log("Id to be updated: " + req.params.id);
   pool.getConnection(function(err, connection){
@@ -141,6 +145,7 @@ app.post("/updateLen/:id", function(req, res){
   });
 });
 
+//Getting the length of previously inserted Test Data
 app.get('/getLength/:id', function(req, res){
   console.log("Prevlenid: " + req.params.id);
   pool.getConnection(function(err, connection){
@@ -160,20 +165,23 @@ app.get('/getLength/:id', function(req, res){
   });
 })
 
+//Uploading files to Upload folder and calling the function insFile
 app.post("/multer", upload.single('file'), insFile);
 
-startExec();
+startExec();  //Function call to start the whole execution process
 //********************************************************************************
 
 //Functions
+//Function to start the execution of whole process
 function startExec(){
+  //query to select the least slno with execution 0
   pool.getConnection(function(err, connection){
     if (err) {
       throw err;
     };
     connection.query('SELECT min(slno) as minSlno from ssa where execution = 0', function(err, result){
       if(!err){
-        //console.log("slno for execution: " + result[0].minSlno);
+        console.log("slno for execution: " + result[0].minSlno);
         connection.release();
         if (result[0].minSlno == null) {
           sleep(5000);
@@ -184,10 +192,10 @@ function startExec(){
           console.log(slNumber-1);
           if (slNumber != 1) {
             console.log("Previous Slno: " + slNumber-1)
-            checkExec(slNumber-1);
+            checkExec(slNumber-1);  //Calling the respective function to check if previous execution value is 2 or not
           }
           else {
-            uploadFile(slNumber);
+            uploadFile(slNumber); //Calling the respective function to upload files
           }
         }
       }
@@ -198,6 +206,7 @@ function startExec(){
   });
 }
 
+//Function to check previous execution value
 function checkExec(prevSlno){
   pool.getConnection(function(err, connection){
     if (err) {
@@ -224,6 +233,7 @@ function checkExec(prevSlno){
   });
 }
 
+//Function to insert and move the file from uploads folder to InsertedFiles folder
 function insFile(req, res){
   sleep(2*1000);
   fs.readdir('public/uploads/', (err, files) => {
@@ -243,6 +253,7 @@ function insFile(req, res){
   });
 }
 
+//Updates execution value to 1 ensuring process in progress
 function updateExec1(currSlno){
   console.log("slno: " + currSlno);
   pool.getConnection(function(err, connection){
@@ -262,6 +273,7 @@ function updateExec1(currSlno){
   });
 }
 
+//Updates execution value to 2 ensuring completion of an execution
 function updateExec2(currSlno){
   console.log("slno: " + currSlno);
   pool.getConnection(function(err, connection){
@@ -274,7 +286,7 @@ function updateExec2(currSlno){
         console.log("Updated to 2");
         connection.release();
         sleep(3000);
-        startExec();
+        startExec();  //Starting new execution as one file execution has been completed
       }
       else{
         console.log("error");
@@ -283,9 +295,9 @@ function updateExec2(currSlno){
   });
 }
 
-//Function to upload and run the jenkins
+//Function to get the Test Data File and run the jenkins
 function uploadFile(currSlno){
-  updateExec1(currSlno);
+  updateExec1(currSlno);  //Function call to update execution value ensuring in-progress of execution
   sleep(2*1000);
   pool.getConnection(function(err, connection){
     if (err) {
@@ -301,14 +313,14 @@ function uploadFile(currSlno){
             if (file == result[0].testdatafile) {
               console.log("Original file name: " + file);
               sleep(1*1000);
-              //Renaming the uploaded file name to TestData_SAP_Automation.xls
               removeDirForce("IT-SAP-UFT-AUTOMATION_POC/TestData/");
+              //Copying the uploaded file to the cloned repo
               fs1.copy('public/InsertedFiles/' + file, 'IT-SAP-UFT-AUTOMATION_POC/TestData/' + file, function(err) {
                 if ( err ) console.log('ERROR: ' + err);
                 else {
                   console.log("Copied the file to the cloned repo.");
                   sleep(1*1000);
-                  //Moving the uploaded file to the cloned repo
+                  //Renaming the uploaded file name to TestData_SAP_Automation.xls
                   fs1.rename('IT-SAP-UFT-AUTOMATION_POC/TestData/' + file, 'IT-SAP-UFT-AUTOMATION_POC/TestData/TestData_SAP_Automation.xls', function(err){
                     if(err){
                       console.log(err);
@@ -335,7 +347,7 @@ function uploadFile(currSlno){
                             else {
                               console.log('queue item number', data);
                               sleep(10*1000);
-                              getJobInfo(currSlno);
+                              getJobInfo(currSlno); //Function call to get the job details
                             }
                           });
                         });
@@ -356,16 +368,18 @@ function uploadFile(currSlno){
 
 }
 
+//Function to get the Jenkins Job details
 function getJobInfo(currSlno){
   jenkins.job.get('ITQA_FT_UFT_SAP', function(err, data) {
     if (err) throw err;
     else {
       console.log('Last build run: ', data.lastBuild.number);
-      getBuildInfo(data.lastBuild.number, currSlno);
+      getBuildInfo(data.lastBuild.number, currSlno);  //Function call to get the latest build details
     }
   });
 }
 
+//Function to get the latest build details
 function getBuildInfo(buildNumber, currSlno){
   jenkins.build.get('ITQA_FT_UFT_SAP', buildNumber, function(err, data) {
     if (err) throw err;
@@ -373,10 +387,10 @@ function getBuildInfo(buildNumber, currSlno){
       console.log('A build is currently Running: ', data.building);
       if (data.building == true) {
         sleep(5000);
-        getBuildInfo(buildNumber, currSlno);
+        getBuildInfo(buildNumber, currSlno);  //Recursive call since build is running currently
       }
       else {
-        updateExec2(currSlno);
+        updateExec2(currSlno);  //Function call to update execution value to 2 ensuring build execution completed
       }
     }
   });
