@@ -36,7 +36,6 @@ sapApp.controller('SapCtrl', ['$scope', '$timeout', '$mdSidenav', '$log', '$http
   $scope.scen = [];   //Variable to store list of selected scenarios
   $scope.loading = [];    //Variable for spinner gif
   $scope.myFile = [];   //Variable to store Test data files
-  $scope.selected = false;
   $scope.userName;
   $scope.loading = [];
   var inslenid;
