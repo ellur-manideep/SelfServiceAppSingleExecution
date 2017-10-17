@@ -48,6 +48,23 @@ app.get('/getScenarios', function(req, res){
   var xlData = xlsx.utils.sheet_to_json(workbook.Sheets[sheet_name_list[0]]);
   console.log(xlData);
   res.json(xlData);
+});
+
+app.get('/getData', function(req, res){
+  pool.getConnection(function(err, connection){
+    if (err) {
+      throw err;
+    };
+    connection.query('SELECT * from ssa', function(err, result){
+      if(!err){
+        res.json(result);
+        connection.release();
+      }
+      else{
+        console.log(err);
+      }
+    });
+  });
 })
 
 //Function call to remove files from a directory
@@ -60,14 +77,14 @@ app.post("/insert", function(req, res){
   var jsondata = req.body;
   var values = [];
   for (var i = 1; i < jsondata.length; i++) {
-    values.push([jsondata[i].scenarios, jsondata[i].testdatafile, jsondata[i].sl]);
+    values.push([jsondata[i].username, jsondata[i].scenarios, jsondata[i].testdatafile]);
   }
   console.log(values);
   pool.getConnection(function(err, connection){
     if (err) {
       throw err;
     };
-    connection.query('INSERT INTO ssa (scenarios, testdatafile, sl) VALUES ?', [values], function(err, result){
+    connection.query('INSERT INTO ssa (username, scenarios, testdatafile) VALUES ?', [values], function(err, result){
       if(!err){
         console.log(result.insertId);
         res.json(result.insertId);
@@ -79,6 +96,69 @@ app.post("/insert", function(req, res){
     });
   });
 });
+
+app.post("/insertLength", function(req, res){
+  console.log("Data to be inserted: " + req.body);
+  var jsondata = req.body;
+  var values = [];
+  for (var i = 1; i < jsondata.length; i++) {
+    values.push([jsondata[i].testdatalength]);
+  }
+  console.log(values);
+  pool.getConnection(function(err, connection){
+    if (err) {
+      throw err;
+    };
+    connection.query('INSERT INTO insertion (testdatalength) VALUES ?', [values], function(err, result){
+      if(!err){
+        console.log("Inserted length with id: " + result.insertId);
+        res.json(result.insertId);
+        connection.release();
+      }
+      else{
+        console.log(err);
+      }
+    });
+  });
+});
+
+app.post("/updateLen/:id", function(req, res){
+  console.log("Id to be updated: " + req.params.id);
+  pool.getConnection(function(err, connection){
+    if (err) {
+      throw err;
+    };
+    connection.query('UPDATE insertion set testdatalength = testdatalength-1 where slno = ?', req.params.id, function(err, result){
+      if(!err){
+        console.log("Updated");
+        res.json("Updated");
+        connection.release();
+      }
+      else{
+        console.log(err);
+      }
+    });
+  });
+});
+
+app.get('/getLength/:id', function(req, res){
+  console.log("Prevlenid: " + req.params.id);
+  pool.getConnection(function(err, connection){
+    if (err) {
+      throw err;
+    };
+    connection.query('SELECT testdatalength from insertion where slno = ?', req.params.id, function(err, result){
+      if(!err){
+        console.log("testdatalength of previnslenid: " + result[0].testdatalength);
+        res.json(result[0].testdatalength);
+        connection.release();
+      }
+      else{
+        console.log(err);
+      }
+    });
+  });
+})
 
 app.post("/multer", upload.single('file'), insFile);
 
@@ -93,7 +173,7 @@ function startExec(){
     };
     connection.query('SELECT min(slno) as minSlno from ssa where execution = 0', function(err, result){
       if(!err){
-        console.log("slno for execution: " + result[0].minSlno);
+        //console.log("slno for execution: " + result[0].minSlno);
         connection.release();
         if (result[0].minSlno == null) {
           sleep(5000);
@@ -222,19 +302,19 @@ function uploadFile(currSlno){
               console.log("Original file name: " + file);
               sleep(1*1000);
               //Renaming the uploaded file name to TestData_SAP_Automation.xls
-              fs.rename('public/InsertedFiles/' + file, 'public/InsertedFiles/TestData_SAP_Automation.xls', function(err) {
+              removeDirForce("IT-SAP-UFT-AUTOMATION_POC/TestData/");
+              fs1.copy('public/InsertedFiles/' + file, 'IT-SAP-UFT-AUTOMATION_POC/TestData/' + file, function(err) {
                 if ( err ) console.log('ERROR: ' + err);
                 else {
-                  console.log("Renamed the file.");
-                  removeDirForce("IT-SAP-UFT-AUTOMATION_POC/TestData/");
+                  console.log("Copied the file to the cloned repo.");
                   sleep(1*1000);
                   //Moving the uploaded file to the cloned repo
-                  fs1.move('public/InsertedFiles/TestData_SAP_Automation.xls', 'IT-SAP-UFT-AUTOMATION_POC/TestData/TestData_SAP_Automation.xls', function(err){
+                  fs1.rename('IT-SAP-UFT-AUTOMATION_POC/TestData/' + file, 'IT-SAP-UFT-AUTOMATION_POC/TestData/TestData_SAP_Automation.xls', function(err){
                     if(err){
                       console.log(err);
                     }
                     else {
-                      console.log("Moved the file to the cloned repo");
+                      console.log("Renamed the file");
                       //Pulling the repo from gitlab for updating the local repo
                       require('child_process').exec("pull.bat", function (err, stdout, stderr) {
                         if (err) {
@@ -265,7 +345,6 @@ function uploadFile(currSlno){
                 }
               });
             }
-
           });
         })
       }

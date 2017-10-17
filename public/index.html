@@ -24,73 +24,25 @@
   <link href="styles.css" rel="stylesheet"  type="text/css">
 </head>
 <body>
-  <div layout="column" layout-align="top center">
-    <img src="https://company-profile-images.s3.amazonaws.com/images/434718/995531/logo/juniper-networks-logo.jpg" />
-
-    <h1 style="font-family: Arial; color: blue"><u>Self Service Application for SAP Regression Suite</u></h1>
-    <div ng-controller="SapCtrl" class="md-padding" ng-cloak >
-      <div style="float:left">
-        <table class="comicGreen">
-          <tbody>
-            <tr>
-              <th>SlNo</th>
-              <th>Scenarios</th>
-              <th>Test Data</th>
-            </tr>
-            <tr ng-repeat="data in testData">
-              <td>{{data.sno}}</td>
-              <td>
-                <md-input-container style="margin-right: 10px;">
-                  <label>Select Scenario</label>
-                  <md-select ng-model="scen[data.sno]" ng-required="true">
-                    <md-option ng-repeat="scenario in scenarios" value="{{scenario.Scenarios}}">{{scenario.Scenarios}}</md-option>
-                  </md-select>
-                </md-input-container>
-              </td>
-              <td><input type="file" file-model="myFile[data.sno]"/></td>
-              <!--td><button ng-click="uploadFile(data.sno)">Upload</button></td-->
-            </tr>
-          </tbody>
-        </table>
-      </div>
-      <div style="float:right">
-        <br>
-        <br>
-        <md-button class="md-raised md-primary" ng-click="addData()" style="font-family: Arial" ng-disabled="uploading">Add Row</md-button>
-      </div>
-      <div style="clear:both">
-        <br><br>
-        <section layout="row" layout-sm="column" layout-align="center center" layout-wrap>
-          <md-button ng-disabled="uploading" class="md-raised md-primary" ng-click="ins()" style="font-family: Arial">Execute Script</md-button>
-        </section>
-        <div ng-if="uploading" style="text-align:center">
-          <b>Please wait! Your test data files are getting uploaded...</b>
-          <img id="mySpinner" src="Spinner.gif" ng-show="loading[0]"/>
-          <table class="comicGreen">
-            <tbody>
-              <tr>
-                <th>SlNo</th>
-                <th>Scenarios</th>
-                <th>Selected Testdata File</th>
-                <th>Build Updates</th>
-              </tr>
-              <tr ng-repeat="info in testData">
-                <td>{{info.sno}}</td>
-                <td>{{scen[info.sno]}}</td>
-                <td>{{myFile[info.sno].name}}</td>
-                <td>
-                  {{buildUpdates[info.sno]}}
-                  <img id="mySpinner" src="Spinner.gif" ng-show="loading[info.sno]"/>
-                </td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-        <div ng-if="done" style="text-align:center">
-          <b>Thank You! Test results will be mailed to you shortly.</b>
-        </div>
-      </div>
-    </div>
-  </div>
+  <main ng-view></main>
 </body>
 </html>
+<!--table class="comicGreen">
+<tbody>
+<tr>
+<th>SlNo</th>
+<th>Scenarios</th>
+<th>Selected Testdata File</th>
+<th>Build Updates</th>
+</tr>
+<tr ng-repeat="info in testData">
+<td>{{info.sno}}</td>
+<td>{{scen[info.sno]}}</td>
+<td>{{myFile[info.sno].name}}</td>
+<td>
+{{buildUpdates[info.sno]}}
+<img id="mySpinner" src="Spinner.gif" ng-show="loading[info.sno]"/>
+</td>
+</tr>
+</tbody>
+</table-->

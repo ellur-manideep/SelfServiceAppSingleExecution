@@ -1,0 +1,58 @@
+<div layout="column" layout-align="top center">
+  <img src="https://company-profile-images.s3.amazonaws.com/images/434718/995531/logo/juniper-networks-logo.jpg" />
+
+  <h1 style="font-family: Arial; color: blue"><u>Self Service Application for SAP Regression Suite</u></h1>
+  <div ng-controller="SapCtrl" class="md-padding" ng-cloak >
+    <div>
+      <md-input-container>
+        <!-- Use floating label instead of placeholder -->
+        <label>Enter Username</label>
+        <!--md-icon md-svg-src="img/icons/ic_person_24px.svg" class="name"></md-icon-->
+        <input ng-model="userName" type="text" ng-required="true" ng-disabled="uploading">
+      </md-input-container>
+    </div>
+    <div style="float:left">
+      <table class="comicGreen">
+        <tbody>
+          <tr>
+            <th>SlNo</th>
+            <th>Scenarios</th>
+            <th>Test Data</th>
+          </tr>
+          <tr ng-repeat="data in testData">
+            <td>{{data.sno}}</td>
+            <td>
+              <md-input-container style="margin-right: 10px;">
+                <label>Select Scenario</label>
+                <md-select ng-model="scen[data.sno]" ng-required="true" ng-disabled="uploading">
+                  <md-option ng-repeat="scenario in scenarios" value="{{scenario.Scenarios}}" >{{scenario.Scenarios}}</md-option>
+                </md-select>
+              </md-input-container>
+            </td>
+            <td><input type="file" file-model="myFile[data.sno]"/></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <div style="float:right">
+      <br>
+      <br>
+      <md-button class="md-raised md-primary" ng-click="addData()" style="font-family: Arial" ng-disabled="uploading">Add Row</md-button>
+    </div>
+    <div style="clear:both">
+      <br><br>
+      <section layout="row" layout-sm="column" layout-align="center center" layout-wrap>
+        <md-button ng-disabled="uploading" class="md-raised md-primary" ng-click="ins()" style="font-family: Arial">Execute Script</md-button>
+      </section>
+      <div ng-if="upload" style="text-align:center">
+        <b>Please dont refresh! Your test data files are getting uploaded...</b>
+        <img id="mySpinner" src="Spinner.gif" ng-show="loading[0]"/>
+      </div>
+      <div ng-if="done" style="text-align:center">
+        <b>Thank You! Your test data files have been uploaded! Please check your status by clicking the button below</b>
+        <br>
+        <md-button class="md-raised md-primary" ng-click="getStatus()" style="font-family: Arial">Get Status</md-button>
+      </div>
+    </div>
+  </div>
+</div>

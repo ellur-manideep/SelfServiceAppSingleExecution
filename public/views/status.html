@@ -1,0 +1,21 @@
+<div ng-controller="SapCtrl" class="md-padding" ng-cloak>
+  <table class="comicGreen">
+    <tbody>
+      <tr>
+        <td>Slno</td>
+        <td>Username</td>
+        <td>Scenarios</td>
+        <td>Execution</td>
+      </tr>
+      <tr ng-repeat="data in listOfData">
+        <td>{{data.slno}}</td>
+        <td>{{data.username}}</td>
+        <td>{{data.scenarios}}</td>
+        <td>
+          {{data.execution}}
+          <img id="mySpinner" src="Spinner.gif" ng-show="loading[data.slno]"/>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+</div>

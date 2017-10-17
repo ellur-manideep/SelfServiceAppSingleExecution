@@ -16,14 +16,31 @@ sapApp.directive('fileModel', ['$parse', function ($parse) {
   };
 }]);
 
+sapApp.config(['$routeProvider', function ($routeProvider){
+  $routeProvider
+  .when('/start', {
+    templateUrl: 'views/execute.html'
+  })
+  .when('/status', {
+    templateUrl: 'views/status.html'
+  })
+  .otherwise({
+      redirectTo: '/start'
+  });
+}]);
+
 sapApp.controller('SapCtrl', ['$scope', '$timeout', '$mdSidenav', '$log', '$http', '$window', '$location', function($scope, $timeout, $mdSidenav, $log, $http, $window, $location){
   $scope.done = false;  //Variable to display completion of execution
   $scope.uploading = false;    //Variable to verify if the file has been uploaded or not
+  $scope.upload = false;
   $scope.scen = [];   //Variable to store list of selected scenarios
   $scope.loading = [];    //Variable for spinner gif
   $scope.myFile = [];   //Variable to store Test data files
-  var ins;    //variable to store sl value from database
-  var insid;    //variable to store insertid value from database
+  $scope.selected = false;
+  $scope.userName;
+  $scope.loading = [];
+  var inslenid;
+  var previnslenid;
   var insertFile = 0;
   var sl = 1;
   $scope.testData = [
@@ -39,22 +56,54 @@ sapApp.controller('SapCtrl', ['$scope', '$timeout', '$mdSidenav', '$log', '$http
     $scope.scenarios=response.data;
   });
 
+$scope.getData = function(){
+  $http({
+    method: 'GET',
+    url: '/getData',
+  })
+  .then(function(response){
+    $scope.listOfData = response.data;
+    for (var i = 0; i < $scope.listOfData.length; i++) {
+      if ($scope.listOfData[i].execution == 0) {
+        $scope.listOfData[i].execution = "In Queue";
+      }
+      else if ($scope.listOfData[i].execution == 1) {
+        $scope.listOfData[i].execution = "In Progress";
+        $scope.loading[i+1] = true;
+      }
+      else {
+        $scope.listOfData[i].execution = "Completed";
+        $scope.loading[i+1] = false;
+      }
+    }
+    $timeout(function() { $scope.getData();}, 5000);
+  });
+}
+
+$scope.getData();
+
   $scope.insData = [
-    {scenarios: null, testdatafile: null, sl: null}
+    {username: null, scenarios: null, testdatafile: null}
   ];
 
+  $scope.insLenData = [
+    {testdatalength: null}
+  ]
   //Function to add rows
   $scope.addData = function(){
     var person = {
       sno: sl+1
     };
     sl = person.sno;
-    $scope.buildUpdates[sl] = "File yet to be uploaded";
     $scope.testData.push(person);
   }
 
   //function to insert the details into db and getting the insert id and sl value
   $scope.ins = function(){
+    if ($scope.userName == undefined) {
+        $window.alert("Username Not entered");
+        return;
+    }
     for (var j = 1; j <= $scope.testData.length; j++) {
       if($scope.scen[j] == undefined){
         $window.alert("Scenario not selected!");
@@ -66,10 +115,52 @@ sapApp.controller('SapCtrl', ['$scope', '$timeout', '$mdSidenav', '$log', '$http
       }
     };
     $scope.uploading = true;
+    $scope.upload = true;
     $scope.loading[0] = true;
 
-    $scope.insertFile();
+    $scope.insertTestData();
+  }
 
+  $scope.insertTestData = function(){
+    console.log("Length to be inserted: " +  $scope.testData.length);
+    var info = {
+      testdatalength: $scope.testData.length
+    }
+    $scope.insLenData.push(info);
+    $http({
+      method: 'POST',
+      url: '/insertLength',
+      data: $scope.insLenData
+    })
+    .then(function(response){
+      $scope.insLenData.pop();
+      console.log("Length Inserted with id: " + response.data);
+      inslenid = response.data;
+      previnslenid = inslenid-1;
+      $scope.getLength();
+    });
+  }
+
+  $scope.getLength = function(){
+    if (inslenid != 1) {
+      console.log("Previous inslen: " + previnslenid);
+      $http({
+        method: 'GET',
+        url: '/getLength/' + previnslenid,
+      })
+      .then(function(response){
+        console.log("Previous testdatalength:" + response.data);
+        if (response.data == 0) {
+            $scope.insertFile();
+        }
+        else {
+          $scope.getLength();
+        }
+      });
+    }
+    else {
+      $scope.insertFile();
+    }
   }
 
   $scope.insertFile = function(){
@@ -92,9 +183,9 @@ sapApp.controller('SapCtrl', ['$scope', '$timeout', '$mdSidenav', '$log', '$http
       .then(function(response){
         console.log(response.data);
         var data = {
+          username: $scope.userName,
           scenarios: $scope.scen[insertFile],
           testdatafile: response.data,
-          sl: insertFile
         };
         $scope.insData.push(data);
         console.log("Data after pushing: " + $scope.insData);
@@ -107,12 +198,30 @@ sapApp.controller('SapCtrl', ['$scope', '$timeout', '$mdSidenav', '$log', '$http
           console.log("Data Inserted");
           $scope.insData.pop();
           console.log("Data after popping: " + $scope.insData);
-          $scope.insertFile();
+          $scope.updateLen();
         });
       });
     }
     else {
       console.log("All your data has been inserted");
+      $scope.done = true;
+      $scope.loading[0] = false;
+      $scope.upload = false;
     }
+  }
+
+  $scope.updateLen = function(){
+    $http({
+      method: 'POST',
+      url: '/updateLen/' + inslenid
+    })
+    .then(function(response){
+      console.log("Updated");
+      $scope.insertFile();
+    });
+  }
+
+  $scope.getStatus = function(){
+    $location.path('/status');
   }
 }]);
