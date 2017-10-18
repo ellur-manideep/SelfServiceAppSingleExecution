@@ -18,6 +18,7 @@ var pool = mysql.createPool({
   password : 'inttankuser',
   database : 'inttank'
 });
+var dateTime = require('node-datetime');
 //**************************************************************************************
 var slNumber; //Variable to store data from db
 var currSlno; //Variable to store data from db
@@ -169,6 +170,7 @@ app.get('/getLength/:id', function(req, res){
 app.post("/multer", upload.single('file'), insFile);
 
 startExec();  //Function call to start the whole execution process
+
 //********************************************************************************
 
 //Functions
@@ -274,19 +276,42 @@ function updateExec1(currSlno){
 }
 
 //Updates execution value to 2 ensuring completion of an execution
-function updateExec2(currSlno){
+function updateExec2(currSlno, result){
   console.log("slno: " + currSlno);
   pool.getConnection(function(err, connection){
     if (err) {
       throw err;
     };
-    connection.query('UPDATE ssa set execution = 2 where slno = ?', currSlno, function(err, result){
+    var dt = dateTime.create();
+    var formatted = dt.format('Y-m-d H:M:S');
+    connection.query('UPDATE ssa set execution = 2, endtime = ?, result = ? where slno = ?', [formatted, result, currSlno], function(err, result){
       if(!err){
         console.log(result);
-        console.log("Updated to 2");
+        console.log("Updated Execution = 2, End Date and Result");
         connection.release();
         sleep(3000);
         startExec();  //Starting new execution as one file execution has been completed
+      }
+      else{
+        console.log("error");
+      }
+    });
+  });
+}
+
+function updateStartDate(currSlno){
+  console.log("slno: " + currSlno);
+  pool.getConnection(function(err, connection){
+    if (err) {
+      throw err;
+    };
+    var dt = dateTime.create();
+    var formatted = dt.format('Y-m-d H:M:S');
+    connection.query('UPDATE ssa set starttime = ? where slno = ?', [formatted, currSlno], function(err, result){
+      if(!err){
+        console.log(result);
+        console.log("Updated the Start Date");
+        connection.release();
       }
       else{
         console.log("error");
@@ -347,6 +372,7 @@ function uploadFile(currSlno){
                             else {
                               console.log('queue item number', data);
                               sleep(10*1000);
+                              updateStartDate(currSlno);
                               getJobInfo(currSlno); //Function call to get the job details
                             }
                           });
@@ -390,7 +416,7 @@ function getBuildInfo(buildNumber, currSlno){
         getBuildInfo(buildNumber, currSlno);  //Recursive call since build is running currently
       }
       else {
-        updateExec2(currSlno);  //Function call to update execution value to 2 ensuring build execution completed
+        updateExec2(currSlno, data.result);  //Function call to update execution value to 2 ensuring build execution completed
       }
     }
   });

@@ -6,6 +6,9 @@
         <td>Username</td>
         <td>Scenarios</td>
         <td>Execution</td>
+        <td>Start Time</td>
+        <td>End Time</td>
+        <td>Result</td>
       </tr>
       <tr ng-repeat="data in listOfData">
         <td>{{data.slno}}</td>
@@ -15,6 +18,9 @@
           {{data.execution}}
           <img id="mySpinner" src="Spinner.gif" ng-show="loading[data.slno]"/>
         </td>
+        <td>{{data.starttime}}</td>
+        <td>{{data.endtime}}</td>
+        <td>{{data.result}}</td>
       </tr>
     </tbody>
   </table>
