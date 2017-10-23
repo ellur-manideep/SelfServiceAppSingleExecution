@@ -157,7 +157,7 @@ $scope.getData();
             $scope.insertFile();  //Function call to insert files ensuring insertion of previous data into ssa db
         }
         else {
-            $timeout(function() { $scope.getLength();}, 3000);  //Recursively calling the function untill ensuring queuing of data
+            $timeout(function() { $scope.getLength();}, 3000);  //Recursively calling the function ensuring queuing of data
         }
       });
     }
@@ -213,6 +213,7 @@ $scope.getData();
       $scope.upload = false;
     }
   }
+
 
   //Function to update the insertion db Test Data Length
   $scope.updateLen = function(){

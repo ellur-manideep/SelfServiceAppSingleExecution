@@ -4,7 +4,16 @@ This log is intended to keep track of backwards-incompatible changes, including
 but not limited to API changes and file location changes.  Minor behavioral
 changes may not be included if they are not expected to break existing code.
 
-## Unreleased (2017-08-??)
+## 0.11.6 (2017-10-16)
+
+* Semicolon-delimited files are detected
+
+## 0.11.5 (2017-09-30)
+
+* Bower main script shifted to full version
+* 'binary' / 'string' encoding
+
+## 0.11.3 (2017-08-19)
 
 * XLS cell ixfe/XF removed
 
