@@ -416,7 +416,13 @@ function getBuildInfo(buildNumber, currSlno){
         getBuildInfo(buildNumber, currSlno);  //Recursive call since build is running currently
       }
       else {
-        updateExec2(currSlno, data.result);  //Function call to update execution value to 2 ensuring build execution completed
+        if (data.result == "UNSTABLE") {
+          updateExec2(currSlno, "SUCCESS");
+        }
+        else {
+          updateExec2(currSlno, data.result);  //Function call to update execution value to 2 ensuring build execution completed
+        }
+
       }
     }
   });
