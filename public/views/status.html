@@ -1,4 +1,8 @@
 <div ng-controller="SapCtrl" class="md-padding" ng-cloak>
+  <div style="float: right">
+    <md-button class="md-raised md-primary" ng-click="back()" style="font-family: Arial">Back</md-button>
+  </div>
+
   <table class="comicGreen">
     <tbody>
       <tr>
@@ -9,18 +13,20 @@
         <td>Start Time</td>
         <td>End Time</td>
         <td>Result</td>
+        <td>Remarks</td>
       </tr>
       <tr ng-repeat="data in listOfData">
         <td>{{data.slno}}</td>
         <td>{{data.username}}</td>
         <td>{{data.scenarios}}</td>
         <td>
-          {{data.execution}}
+          {{data.execution}}<br>
           <img id="mySpinner" src="Spinner.gif" ng-show="loading[data.slno]"/>
         </td>
         <td>{{data.starttime}}</td>
         <td>{{data.endtime}}</td>
         <td>{{data.result}}</td>
+        <td>{{remarks[data.slno]}}</td>
       </tr>
     </tbody>
   </table>

@@ -33,10 +33,12 @@ sapApp.controller('SapCtrl', ['$scope', '$timeout', '$mdSidenav', '$log', '$http
   $scope.done = false;  //Variable to display completion of execution
   $scope.uploading = false;    //Variable to verify if the file has been uploaded or not
   $scope.upload = false;
+  $scope.adding = true;
   $scope.scen = [];   //Variable to store list of selected scenarios
   $scope.loading = [];    //Variable for spinner gif
   $scope.myFile = [];   //Variable to store Test data files
   $scope.userName;
+  $scope.remarks = [];
   $scope.loading = [];
   var inslenid;
   var previnslenid;
@@ -75,6 +77,12 @@ $scope.getData = function(){
         $scope.listOfData[i].execution = "Completed";
         $scope.loading[i+1] = false;
       }
+      if ($scope.listOfData[i].result == "UNSTABLE") {
+        $scope.remarks[i+1] = "Check Mailed Reports for Details!"
+      }
+      else {
+        $scope.remarks[i+1] = "NA"
+      }
     }
     $timeout(function() { $scope.getData();}, 5000);
   });
@@ -97,6 +105,16 @@ $scope.getData();
     };
     sl = person.sno;
     $scope.testData.push(person);
+    $scope.adding = false;
+  }
+
+  $scope.deleteData = function(){
+    $scope.testData.pop();
+    sl--;
+    if (sl == 1) {
+      $scope.adding = true;
+    }
+    console.log($scope.testData.length);
   }
 
   //function to insert the details into db
@@ -230,5 +248,9 @@ $scope.getData();
   //Function to get the status of the user request
   $scope.getStatus = function(){
     $location.path('/status');
+  }
+
+  $scope.back = function(){
+    $location.path("/start");
   }
 }]);

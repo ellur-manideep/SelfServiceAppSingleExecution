@@ -5,6 +5,8 @@
 .center {
   width: 800px;
 }
+table {border-collapse:collapse; ; }
+
 table.comicGreen {
   font-family: "Arial", cursive, sans-serif;
   border: 2px solid #1C6EA4;
@@ -16,6 +18,9 @@ table.comicGreen {
 table.comicGreen td, table.comicGreen th {
   border: 2px solid #1C6EA4;
   padding: 3px 2px;
+  overflow: hidden;
+  max-width: 400px
+  word-wrap:break-word;
 }
 table.comicGreen tbody td, table.comicGreen th {
   font-size: 19px;

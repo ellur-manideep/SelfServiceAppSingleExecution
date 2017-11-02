@@ -35,9 +35,9 @@
       </table>
     </div>
     <div style="float:right">
-      <br>
-      <br>
       <md-button class="md-raised md-primary" ng-click="addData()" style="font-family: Arial" ng-disabled="uploading">Add Row</md-button>
+      <br>
+      <md-button class="md-raised md-primary" ng-click="deleteData()" style="font-family: Arial" ng-disabled="uploading || adding">Delete Row</md-button>
     </div>
     <div style="clear:both">
       <br><br>
@@ -49,7 +49,7 @@
         <img id="mySpinner" src="Spinner.gif" ng-show="loading[0]"/>
       </div>
       <div ng-if="done" style="text-align:center">
-        <b>Thank You! Your test data files have been uploaded! Please check your status by clicking the button below</b>
+        <b>Thank You! Your test data files have been uploaded! Please check your status by clicking the button below!</b>
         <br>
         <md-button class="md-raised md-primary" ng-click="getStatus()" style="font-family: Arial">Get Status</md-button>
       </div>
