@@ -77,7 +77,7 @@ $scope.getData = function(){
         $scope.listOfData[i].execution = "Completed";
         $scope.loading[i+1] = false;
       }
-      if ($scope.listOfData[i].result == "UNSTABLE") {
+      if ($scope.listOfData[i].result == "FAILURE") {
         $scope.remarks[i+1] = "Check Mailed Reports for Details!"
       }
       else {
