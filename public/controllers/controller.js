@@ -16,6 +16,21 @@ sapApp.directive('fileModel', ['$parse', function ($parse) {
   };
 }]);
 
+sapApp.directive('tooltip', function(){
+    return {
+        restrict: 'A',
+        link: function(scope, element, attrs){
+            $(element).hover(function(){
+                // on mouseenter
+                $(element).tooltip('show');
+            }, function(){
+                // on mouseleave
+                $(element).tooltip('hide');
+            });
+        }
+    };
+});
+
 sapApp.config(['$routeProvider', function ($routeProvider){
   $routeProvider
   .when('/start', {
@@ -23,6 +38,9 @@ sapApp.config(['$routeProvider', function ($routeProvider){
   })
   .when('/status', {
     templateUrl: 'views/status.html'
+  })
+  .when('/help', {
+    templateUrl: 'views/help.html'
   })
   .otherwise({
       redirectTo: '/start'
@@ -39,7 +57,7 @@ sapApp.controller('SapCtrl', ['$scope', '$timeout', '$mdSidenav', '$log', '$http
   $scope.myFile = [];   //Variable to store Test data files
   $scope.userName;
   $scope.remarks = [];
-  $scope.loading = [];
+  $scope.getData;
   var inslenid;
   var previnslenid;
   var insertFile = 0;
@@ -56,6 +74,7 @@ sapApp.controller('SapCtrl', ['$scope', '$timeout', '$mdSidenav', '$log', '$http
     console.log(response.data);
     $scope.scenarios=response.data;
   });
+
 
 //Get request for fetching whole db details
 $scope.getData = function(){
@@ -84,7 +103,7 @@ $scope.getData = function(){
         $scope.remarks[i+1] = "NA"
       }
     }
-    $timeout(function() { $scope.getData();}, 5000);
+    $timeout(function() { $scope.getData();}, 3000);
   });
 }
 
@@ -105,16 +124,28 @@ $scope.getData();
     };
     sl = person.sno;
     $scope.testData.push(person);
+    console.log($scope.testData);
     $scope.adding = false;
   }
 
-  $scope.deleteData = function(){
-    $scope.testData.pop();
-    sl--;
-    if (sl == 1) {
-      $scope.adding = true;
+  $scope.deleteData = function(id){
+    if (sl != 1) {
+      console.log($scope.testData);
+      $scope.testData.splice(id-1, 1);
+      $scope.myFile.splice(id, 1);
+      $scope.scen.splice(id, 1);
+      console.log($scope.testData);
+      for (var i = id-1; i < $scope.testData.length; i++) {
+        console.log("Testdata that has to be updated: " + $scope.testData[i].sno);
+        $scope.testData[i].sno = i+1;
+      }
+      console.log($scope.testData.length);
+      console.log($scope.testData);
+      sl--;
     }
-    console.log($scope.testData.length);
+    else {
+      $window.alert("Cannot delete the only row!");
+    }
   }
 
   //function to insert the details into db

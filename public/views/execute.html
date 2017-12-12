@@ -1,17 +1,47 @@
+<header>
+  <nav class="navbar navbar-inverse navbar-fixed-top" role="navigation">
+    <div class="container-fluid">
+      <div class="navbar-header">
+        <a class="navbar-brand" href="https://www.juniper.net"><img src="images/logo_juniper.png" class="logoImage" alt=""></a>
+      </div>
+      <a class="antenaMedium font14 float-left" href="#"><h3 class="navbar-title"> Self Service Application for SAP Regression Suite </h3></a>
+        <ul class="nav navbar-nav navbar-right">
+          <li>
+            <a href="/#/start" id="current">
+              Home
+              <span><img alt="jnpr-social-icon" src="images/jnpr-social-icon_arrow-outline-bold-right.svg" class="right-arrow"></span>
+             </a>
+          </li>
+          <li>
+            <a href="/#/status">
+              Status
+              <span><img alt="jnpr-social-icon" src="images/jnpr-social-icon_arrow-outline-bold-right.svg" class="right-arrow"></span>
+            </a>
+          </li>
+          <li>
+            <a href="/#/help">
+              Help
+              <span><img alt="jnpr-social-icon" src="images/jnpr-social-icon_arrow-outline-bold-right.svg" class="right-arrow"></span>
+            </a>
+          </li>
+        </ul>
+    </div>
+  </nav>
+</header>
 <div layout="column" layout-align="top center">
-  <img src="https://company-profile-images.s3.amazonaws.com/images/434718/995531/logo/juniper-networks-logo.jpg" />
-
-  <h1 style="font-family: Arial; color: blue"><u>Self Service Application for SAP Regression Suite</u></h1>
+  <br><br><br>
+  <h3 id="header">Home Page</h3>
   <div ng-controller="SapCtrl" class="md-padding" ng-cloak >
-    <div>
+    <div layout="row">
       <md-input-container>
         <!-- Use floating label instead of placeholder -->
-        <label style="color: blue; "><b>Enter Username</b></label>
+        <label id="label"><b>Enter Username</b></label>
         <!--md-icon md-svg-src="img/icons/ic_person_24px.svg" class="name"></md-icon-->
-        <input ng-model="userName" type="text" ng-required="true" ng-disabled="uploading">
+        <input ng-model="userName" type="text"  ng-required="true" ng-disabled="uploading">
       </md-input-container>
+      <a href="#0"  title="eg: ellurm!" data-toggle="tooltip" data-placement="right" tooltip><span class="glyphicon glyphicon-search"></span></a>
     </div>
-    <div style="float:left">
+    <div>
       <table class="comicGreen">
         <tbody>
           <tr>
@@ -29,30 +59,36 @@
                 </md-select>
               </md-input-container>
             </td>
-            <td><input type="file" file-model="myFile[data.sno]"/></td>
+            <td>
+              <input type="file" file-model="myFile[data.sno]" style="display:inline-block;"/>
+              <a ng-click="deleteData(data.sno)">
+                <span class="glyphicon glyphicon-remove"></span>
+              </a>
+            </td>
           </tr>
         </tbody>
       </table>
     </div>
-    <div style="float:right">
-      <md-button class="md-raised md-primary" ng-click="addData()" style="font-family: Arial" ng-disabled="uploading">Add Row</md-button>
-      <br>
-      <md-button class="md-raised md-primary" ng-click="deleteData()" style="font-family: Arial" ng-disabled="uploading || adding">Delete Row</md-button>
-    </div>
-    <div style="clear:both">
-      <br><br>
-      <section layout="row" layout-sm="column" layout-align="center center" layout-wrap>
-        <md-button ng-disabled="uploading" class="md-raised md-primary" ng-click="ins()" style="font-family: Arial">Execute Script</md-button>
-      </section>
-      <div ng-if="upload" style="text-align:center">
-        <b>Please dont refresh! Your test data files are getting uploaded...</b>
-        <img id="mySpinner" src="Spinner.gif" ng-show="loading[0]"/>
-      </div>
-      <div ng-if="done" style="text-align:center">
-        <b>Thank You! Your test data files have been uploaded! Please check your status by clicking the button below!</b>
-        <br>
-        <md-button class="md-raised md-primary" ng-click="getStatus()" style="font-family: Arial">Get Status</md-button>
-      </div>
-    </div>
+
+    <!--div style="float:right">
+    <md-button class="md-raised md-primary" ng-click="deleteData()" id="standard" ng-disabled="uploading || adding">Delete Row</md-button>
+  </div-->
+
+  <div style="clear:both">
+    <md-button ng-disabled="uploading" class="md-raised md-primary" style="float:left" ng-click="ins()" id="standard">Execute Script</md-button>
+    <md-button class="md-raised md-primary" style="float:right" ng-click="addData()" id="standard" ng-disabled="uploading">Add Row</md-button>
+    <br><br>
+    <!--section layout="row" layout-sm="column" layout-align="center center" layout-wrap>
+    <md-button ng-disabled="uploading" class="md-raised md-primary" ng-click="ins()" style="font-weight: bold;; font-size: 12px; font-family: 'Antenna-ExtraLight';">Execute Script</md-button>
+  </section-->
+  <div ng-if="upload" style="text-align:center">
+    <p id="standard"><b>Please dont refresh or navigate! Your test data files are getting uploaded...</b></p>
+    <img id="mySpinner" src="Spinner.gif" ng-show="loading[0]"/>
   </div>
+  <div ng-if="done" style="text-align:center">
+    <p id="standard"> <b>Thank You! Your test data files have been uploaded! Please check your status by clicking the button below!</b></p>
+    <md-button class="md-raised md-primary" ng-click="getStatus()" id="standard">Get Status</md-button>
+  </div>
+</div>
+</div>
 </div>

@@ -1,19 +1,49 @@
-<div ng-controller="SapCtrl" class="md-padding" ng-cloak>
-  <div style="float: right">
-    <md-button class="md-raised md-primary" ng-click="back()" style="font-family: Arial">Back</md-button>
-  </div>
+<header>
+  <nav class="navbar navbar-inverse navbar-fixed-top" role="navigation">
+    <div class="container-fluid">
+      <div class="navbar-header">
+        <a class="navbar-brand" href="https://www.juniper.net"><img src="images/logo_juniper.png" class="logoImage" alt=""></a>
+      </div>
+      <a class="antenaMedium font14 float-left" href="#"><h3 class="navbar-title"> Self Service Application for SAP Regression Suite </h3></a>
+        <ul class="nav navbar-nav navbar-right">
+          <li>
+            <a href="/#/start">
+              Home
+              <span><img alt="jnpr-social-icon" src="images/jnpr-social-icon_arrow-outline-bold-right.svg" class="right-arrow"></span>
+             </a>
+          </li>
+          <li>
+            <a href="/#/status" id="current">
+              Status
+              <span><img alt="jnpr-social-icon" src="images/jnpr-social-icon_arrow-outline-bold-right.svg" class="right-arrow"></span>
+            </a>
+          </li>
+          <li>
+            <a href="/#/help">
+              Help
+              <span><img alt="jnpr-social-icon" src="images/jnpr-social-icon_arrow-outline-bold-right.svg" class="right-arrow"></span>
+            </a>
+          </li>
+        </ul>
+    </div>
+  </nav>
 
+</header>
+
+<div ng-controller="SapCtrl" class="md-padding" ng-cloak>
+  <br><br>
+  <h3 id="header">Status Page</h3>
   <table class="comicGreen">
     <tbody>
       <tr>
-        <td>Slno</td>
-        <td>Username</td>
-        <td>Scenarios</td>
-        <td>Execution</td>
-        <td>Start Time</td>
-        <td>End Time</td>
-        <td>Result</td>
-        <td>Remarks</td>
+        <th>Slno</th>
+        <th>Username</th>
+        <th>Scenarios</th>
+        <th>Execution</th>
+        <th>Start Time</th>
+        <th>End Time</th>
+        <th>Result</th>
+        <th>Remarks</th>
       </tr>
       <tr ng-repeat="data in listOfData">
         <td>{{data.slno}}</td>
