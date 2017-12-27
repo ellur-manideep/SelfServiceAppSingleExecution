@@ -92,7 +92,7 @@ $scope.getData = function(){
         $scope.listOfData[i].execution = "In Progress";
         $scope.loading[i+1] = true;
       }
-      else {
+      else if ($scope.listOfData[i].execution == 2){
         $scope.listOfData[i].execution = "Completed";
         $scope.loading[i+1] = false;
       }
@@ -107,7 +107,6 @@ $scope.getData = function(){
   });
 }
 
-//Function call to get whole db details
 $scope.getData();
 
   $scope.insData = [

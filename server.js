@@ -12,7 +12,7 @@ var sleep = require('system-sleep');
 var jenkins = require('jenkins')({ baseUrl: 'http://admin:juniper123@d-itqtp-app-01:8080', crumbIssuer: true });
 var mysql = require('mysql');
 var pool = mysql.createPool({
-  connectionLimit: 50,
+  connectionLimit: 200,
   host : 'inttankdev.cwkirvnl2kse.us-west-2.rds.amazonaws.com',
   user : 'inttankuser',
   password : 'inttankuser',
