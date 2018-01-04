@@ -23,32 +23,32 @@ var dateTime = require('node-datetime');
 var cluster = require('cluster');
 
 
-  //**************************************************************************************
-  var slNumber; //Variable to store data from db
-  var currSlno; //Variable to store data from db
+//**************************************************************************************
+var slNumber; //Variable to store data from db
+var currSlno; //Variable to store data from db
 
-  // Gitlab Repo Path
-  var url = "https://it-gitlab.junipercloud.net/wpsa-qa/IT-SAP-UFT-AUTOMATION_POC.git";
+// Gitlab Repo Path
+var url = "https://it-gitlab.junipercloud.net/wpsa-qa/IT-SAP-UFT-AUTOMATION_POC.git";
 
-  //Running the bat file for cloning
-  var spawn = require('child_process').exec("clone.bat", function (err, stdout, stderr) {
-    if (err) {
-      return console.log(err);
-    }
-    console.log(stdout);
+//Running the bat file for cloning
+var spawn = require('child_process').exec("clone.bat", function (err, stdout, stderr) {
+  if (err) {
+    return console.log(err);
+  }
+  console.log(stdout);
+});
+if (cluster.isMaster) {
+  var _cpus = require('os').cpus().length;
+  // create a worker for each CPU
+  for (var i = 0; i < _cpus; i += 1) {
+    cluster.fork();
+  }
+  // When a worker dies create another one
+  cluster.on('exit', function(worker) {
+    console.log('worker ' + worker.id +  ' died');
+    cluster.fork();
   });
-  if (cluster.isMaster) {
-    var _cpus = require('os').cpus().length;
-    // create a worker for each CPU
-    for (var i = 0; i < _cpus; i += 1) {
-      cluster.fork();
-    }
-    // When a worker dies create another one
-    cluster.on('exit', function(worker) {
-      console.log('worker ' + worker.id +  ' died');
-      cluster.fork();
-    });
-  } else {
+} else {
   //Path where the file has to be uploaded
   var upload= multer({dest: __dirname + '/public/uploads/'});
 
@@ -357,50 +357,59 @@ var cluster = require('cluster');
               if (file == result[0].testdatafile) {
                 console.log("Original file name: " + file);
                 sleep(1*1000);
-                removeDirForce("IT-SAP-UFT-AUTOMATION_POC/TestData/");
-                //Copying the uploaded file to the cloned repo
-                fs1.copy('public/InsertedFiles/' + file, 'IT-SAP-UFT-AUTOMATION_POC/TestData/' + file, function(err) {
-                  if ( err ) console.log('ERROR: ' + err);
+                //removeDirForce("IT-SAP-UFT-AUTOMATION_POC/TestData/");
+                fs1.remove('IT-SAP-UFT-AUTOMATION_POC/TestData/TestData_SAP_Automation.xls', function(err){
+                  if (err) {
+                    console.log("Error in removing: " + err);
+                  }
                   else {
-                    console.log("Copied the file to the cloned repo.");
-                    sleep(1*1000);
-                    //Renaming the uploaded file name to TestData_SAP_Automation.xls
-                    fs1.rename('IT-SAP-UFT-AUTOMATION_POC/TestData/' + file, 'IT-SAP-UFT-AUTOMATION_POC/TestData/TestData_SAP_Automation.xls', function(err){
-                      if(err){
-                        console.log(err);
-                      }
+                    console.log("Removed testdata file");
+                    sleep(1000);
+                    //Copying the uploaded file to the cloned repo
+                    fs1.copy('public/InsertedFiles/' + file, 'IT-SAP-UFT-AUTOMATION_POC/TestData/' + file, function(err) {
+                      if ( err ) console.log('ERROR: ' + err);
                       else {
-                        console.log("Renamed the file");
-                        //Pulling the repo from gitlab for updating the local repo
-                        require('child_process').exec("pull.bat", function (err, stdout, stderr) {
-                          if (err) {
-                            return console.log(err);
+                        console.log("Copied the file to the cloned repo.");
+                        sleep(1*1000);
+                        //Renaming the uploaded file name to TestData_SAP_Automation.xls
+                        fs1.rename('IT-SAP-UFT-AUTOMATION_POC/TestData/' + file, 'IT-SAP-UFT-AUTOMATION_POC/TestData/TestData_SAP_Automation.xls', function(err){
+                          if(err){
+                            console.log(err);
                           }
-                          console.log(stdout);
-                          sleep(5*1000);
-                          //Pushing the cloned and updated repo
-                          require('child_process').exec("push.bat", function (err, stdout, stderr) {
-                            if (err) {
-                              return console.log(err);
-                            }
-                            console.log(stdout);
-                            //Triger Build from Jenkins
-                            jenkins.job.build({name:"ITQA_FT_UFT_SAP", parameters: { name: 'Test' }}, function(err, data) {
-                              sleep(3*1000);
-                              if (err) throw err;
-                              else {
-                                console.log('queue item number', data);
-                                sleep(10*1000);
-                                updateStartDate(currSlno);
-                                getJobInfo(currSlno); //Function call to get the job details
+                          else {
+                            console.log("Renamed the file");
+                            //Pulling the repo from gitlab for updating the local repo
+                            require('child_process').exec("pull.bat", function (err, stdout, stderr) {
+                              if (err) {
+                                return console.log(err);
                               }
+                              console.log(stdout);
+                              sleep(5*1000);
+                              //Pushing the cloned and updated repo
+                              require('child_process').exec("push.bat", function (err, stdout, stderr) {
+                                if (err) {
+                                  return console.log(err);
+                                }
+                                console.log(stdout);
+                                //Triger Build from Jenkins
+                                jenkins.job.build({name:"ITQA_FT_UFT_SAP", parameters: { name: 'Test' }}, function(err, data) {
+                                  sleep(3*1000);
+                                  if (err) throw err;
+                                  else {
+                                    console.log('queue item number', data);
+                                    sleep(10*1000);
+                                    updateStartDate(currSlno);
+                                    getJobInfo(currSlno); //Function call to get the job details
+                                  }
+                                });
+                              });
                             });
-                          });
+                          }
                         });
                       }
                     });
                   }
-                });
+                })
               }
             });
           })
