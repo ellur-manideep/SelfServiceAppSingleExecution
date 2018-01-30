@@ -40,7 +40,7 @@ var spawn = require('child_process').exec("clone.bat", function (err, stdout, st
 if (cluster.isMaster) {
   var _cpus = require('os').cpus().length;
   // create a worker for each CPU
-  for (var i = 0; i < _cpus; i += 1) {
+  for (var i = 0; i < 1; i += 1) {
     cluster.fork();
   }
   // When a worker dies create another one

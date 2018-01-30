@@ -6,6 +6,10 @@
   width: 800px;
 }
 
+#navHeader{
+  height: 50px;
+}
+
 #current{
   color: #3493c1;
 }
@@ -21,7 +25,7 @@
   font-size: 16px;
   font-family: 'Antenna-ExtraLight';
   text-align: left;
-  margin: 20px; 
+  margin: 20px;
 }
 
 #label {
