@@ -1,10 +1,15 @@
-<header id="navHeader">
-  <nav class="navbar navbar-inverse navbar-fixed-top" role="navigation">
+<div class="col-md-offset-1 col-md-10 col-sm-12">
+  <nav class="navbar navbar-default" role="navigation">
     <div class="container-fluid">
       <div class="navbar-header">
-        <a class="navbar-brand" href="https://www.juniper.net"><img src="images/logo_juniper.png" class="logoImage" alt=""></a>
+        <a class="navbar-brand" href="https://www.juniper.net" style="padding: 2.5px 15px;"><img src="images/logo_juniper.png" style="width:130px" alt=""></a>
       </div>
-      <a class="antenaMedium font14 float-left" href="#"><h3 class="navbar-title"> Self Service Application for SAP Regression Suite </h3></a>
+      <p class="navbar-text" href="#">
+        <span style="font-size:15px;font-weight:bold;"> Self Service Application for SAP Regression Suite <span>
+        </p>
+        <div class="navbar-collapse collapse">
+
+
         <ul class="nav navbar-nav navbar-right">
           <li>
             <a href="/#/start" id="current">
@@ -25,22 +30,28 @@
             </a>
           </li>
         </ul>
+          </div>
     </div>
   </nav>
-</header>
-<div layout="column" layout-align="top center">
-  <h3 id="header">Home Page</h3>
-  <div ng-controller="SapCtrl" class="md-padding" ng-cloak >
-    <div layout="row">
+</div>
+<div class="col-md-offset-1 col-md-10 col-sm-12">
+  <div ng-controller="SapCtrl" class="panel panel-default mypanel" ng-cloak >
+    <div class="panel-heading">
+      <h3 class="panel-title">
+        <strong>Home Page</strong>
+      </h3>
+    </div>
+    <div class="panel-body">
+    <div class="form-group">
       <md-input-container>
         <!-- Use floating label instead of placeholder -->
-        <label id="label"><b>Enter Username</b></label>
+        <label class="col-sm2 control-label"><b>Enter Username</b></label>
         <!--md-icon md-svg-src="img/icons/ic_person_24px.svg" class="name"></md-icon-->
         <input ng-model="userName" type="text"  ng-required="true" ng-disabled="uploading">
       </md-input-container>
       <a href="#0"  title="eg: ellurm!" data-toggle="tooltip" data-placement="right" tooltip><span class="glyphicon glyphicon-search"></span></a>
     </div>
-    <div>
+    <div class="form-group">
       <table class="comicGreen">
         <tbody>
           <tr>
@@ -73,7 +84,7 @@
     <md-button class="md-raised md-primary" ng-click="deleteData()" id="standard" ng-disabled="uploading || adding">Delete Row</md-button>
   </div-->
 
-  <div style="clear:both">
+  <div style="clear:both" class="form-group">
     <md-button ng-disabled="uploading" class="md-raised md-primary" style="float:left" ng-click="ins()" id="standard">Execute Script</md-button>
     <md-button class="md-raised md-primary" style="float:right" ng-click="addData()" id="standard" ng-disabled="uploading">Add Row</md-button>
     <br><br>
@@ -88,6 +99,7 @@
     <p id="standard"> <b>Thank You! Your test data files have been uploaded! Please check your status by clicking the button below!</b></p>
     <md-button class="md-raised md-primary" ng-click="getStatus()" id="standard">Get Status</md-button>
   </div>
+</div>
 </div>
 </div>
 </div>

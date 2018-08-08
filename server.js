@@ -9,14 +9,14 @@ var fs = require('fs');
 var fs1 = require('fs-extra');
 var _ = require('underscore');
 var sleep = require('system-sleep');
-var jenkins = require('jenkins')({ baseUrl: 'http://admin:juniper123@d-itqtp-app-01:8080', crumbIssuer: true });
+var jenkins = require('jenkins')({ baseUrl: '****', crumbIssuer: true });
 var mysql = require('mysql');
 var pool = mysql.createPool({
   connectionLimit: 200,
-  host : 'inttankdev.cwkirvnl2kse.us-west-2.rds.amazonaws.com',
-  user : 'inttankuser',
-  password : 'inttankuser',
-  database : 'inttank'
+  host : '****',
+  user : '****',
+  password : '****',
+  database : '****'
 });
 var dateTime = require('node-datetime');
 
@@ -28,7 +28,7 @@ var slNumber; //Variable to store data from db
 var currSlno; //Variable to store data from db
 
 // Gitlab Repo Path
-var url = "https://it-gitlab.junipercloud.net/wpsa-qa/IT-SAP-UFT-AUTOMATION_POC.git";
+var url = "****";
 
 //Running the bat file for cloning
 var spawn = require('child_process').exec("clone.bat", function (err, stdout, stderr) {
@@ -63,7 +63,6 @@ if (cluster.isMaster) {
     var workbook = xlsx.readFile(__dirname + '/public/Book1.xlsx');
     var sheet_name_list = workbook.SheetNames;
     var xlData = xlsx.utils.sheet_to_json(workbook.Sheets[sheet_name_list[0]]);
-    console.log(xlData);
     res.json(xlData);
   });
 
@@ -73,7 +72,7 @@ if (cluster.isMaster) {
       if (err) {
         throw err;
       };
-      connection.query('SELECT * from ssa', function(err, result){
+      connection.query('SELECT * from ssa04', function(err, result){
         if(!err){
           res.json(result);
           connection.release();
@@ -89,7 +88,7 @@ if (cluster.isMaster) {
   //Function call to remove files from uploads directory
   removeDirForce("public/uploads/");
 
-  //Inserting Test Data File details into db: ssa
+  //Inserting Test Data File details into db: ssa04
   app.post("/insert", function(req, res){
     console.log(req.body);
     console.log("Length of data to be inserted: " + req.body.length);
@@ -103,7 +102,7 @@ if (cluster.isMaster) {
       if (err) {
         throw err;
       };
-      connection.query('INSERT INTO ssa (username, scenarios, testdatafile) VALUES ?', [values], function(err, result){
+      connection.query('INSERT INTO ssa04 (username, scenarios, testdatafile) VALUES ?', [values], function(err, result){
         if(!err){
           console.log(result.insertId);
           res.json(result.insertId);
@@ -116,7 +115,7 @@ if (cluster.isMaster) {
     });
   });
 
-  //Inserting Test Data Lenth details to db: insertion
+  //Inserting Test Data Lenth details to db: insertion04
   app.post("/insertLength", function(req, res){
     console.log("Data to be inserted: " + req.body);
     var jsondata = req.body;
@@ -129,7 +128,7 @@ if (cluster.isMaster) {
       if (err) {
         throw err;
       };
-      connection.query('INSERT INTO insertion (testdatalength) VALUES ?', [values], function(err, result){
+      connection.query('INSERT INTO insertion04 (testdatalength) VALUES ?', [values], function(err, result){
         if(!err){
           console.log("Inserted length with id: " + result.insertId);
           res.json(result.insertId);
@@ -142,14 +141,14 @@ if (cluster.isMaster) {
     });
   });
 
-  //Decrementing Test Data Length by 1 ensuring completion of data insertion into ssa
+  //Decrementing Test Data Length by 1 ensuring completion of data insertion04 into ssa04
   app.post("/updateLen/:id", function(req, res){
     console.log("Id to be updated: " + req.params.id);
     pool.getConnection(function(err, connection){
       if (err) {
         throw err;
       };
-      connection.query('UPDATE insertion set testdatalength = testdatalength-1 where slno = ?', req.params.id, function(err, result){
+      connection.query('UPDATE insertion04 set testdatalength = testdatalength-1 where slno = ?', req.params.id, function(err, result){
         if(!err){
           console.log("Updated");
           res.json("Updated");
@@ -169,7 +168,7 @@ if (cluster.isMaster) {
       if (err) {
         throw err;
       };
-      connection.query('SELECT testdatalength from insertion where slno = ?', req.params.id, function(err, result){
+      connection.query('SELECT testdatalength from insertion04 where slno = ?', req.params.id, function(err, result){
         if(!err){
           console.log("testdatalength of previnslenid: " + result[0].testdatalength);
           res.json(result[0].testdatalength);
@@ -186,7 +185,7 @@ if (cluster.isMaster) {
   app.post("/multer", upload.single('file'), insFile);
 
 
-  startExec();  //Function call to start the whole execution process
+  //startExec();  //Function call to start the whole execution process
 
   //********************************************************************************
 
@@ -198,7 +197,7 @@ if (cluster.isMaster) {
       if (err) {
         throw err;
       };
-      connection.query('SELECT min(slno) as minSlno from ssa where execution = 0 or execution = 1', function(err, result){
+      connection.query('SELECT min(slno) as minSlno from ssa04 where execution = 0 or execution = 1', function(err, result){
         if(!err){
           //  console.log("slno for execution: " + result[0].minSlno);
           connection.release();
@@ -233,7 +232,7 @@ if (cluster.isMaster) {
         throw err;
       };
       console.log("Previous slno: " + prevSlno);
-      connection.query('SELECT execution from ssa where slno = ?', prevSlno, function(err, result){
+      connection.query('SELECT execution from ssa04 where slno = ?', prevSlno, function(err, result){
         if(!err){
           console.log("Previous execution value: " + result[0].execution);
           connection.release();
@@ -281,7 +280,7 @@ if (cluster.isMaster) {
       if (err) {
         throw err;
       };
-      connection.query('UPDATE ssa set execution = 1 where slno = ?', currSlno, function(err, result){
+      connection.query('UPDATE ssa04 set execution = 1 where slno = ?', currSlno, function(err, result){
         if(!err){
           console.log(result);
           console.log("Updated to 1");
@@ -303,7 +302,7 @@ if (cluster.isMaster) {
       };
       var dt = dateTime.create();
       var formatted = dt.format('Y-m-d H:M:S');
-      connection.query('UPDATE ssa set execution = 2, endtime = ?, result = ? where slno = ?', [formatted, result, currSlno], function(err, result){
+      connection.query('UPDATE ssa04 set execution = 2, endtime = ?, result = ? where slno = ?', [formatted, result, currSlno], function(err, result){
         if(!err){
           console.log(result);
           console.log("Updated Execution = 2, End Date and Result");
@@ -326,7 +325,7 @@ if (cluster.isMaster) {
       };
       var dt = dateTime.create();
       var formatted = dt.format('Y-m-d H:M:S');
-      connection.query('UPDATE ssa set starttime = ? where slno = ?', [formatted, currSlno], function(err, result){
+      connection.query('UPDATE ssa04 set starttime = ? where slno = ?', [formatted, currSlno], function(err, result){
         if(!err){
           console.log(result);
           console.log("Updated the Start Date");
@@ -347,7 +346,7 @@ if (cluster.isMaster) {
       if (err) {
         throw err;
       };
-      connection.query('SELECT testdatafile from ssa where slno = ?', currSlno, function(err, result){
+      connection.query('SELECT testdatafile from ssa04 where slno = ?', currSlno, function(err, result){
         if(!err){
           console.log("Test Data file name: " + result[0].testdatafile);
           connection.release();
@@ -392,7 +391,7 @@ if (cluster.isMaster) {
                                 }
                                 console.log(stdout);
                                 //Triger Build from Jenkins
-                                jenkins.job.build({name:"ITQA_FT_UFT_SAP", parameters: { name: 'Test' }}, function(err, data) {
+                                jenkins.job.build({name:"ITQA_FT_UFT_SAP"}, function(err, data) {
                                   sleep(3*1000);
                                   if (err) throw err;
                                   else {
